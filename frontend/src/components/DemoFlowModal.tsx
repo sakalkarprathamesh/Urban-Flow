@@ -41,10 +41,10 @@ export default function DemoFlowModal({
       title: "1. City Status Overview",
       subtitle: "The Master Vision: A Second Road Network for Goods",
       script: "“Cities have an advanced road network for people. But there is another parallel road network operating on those same roads — the movement of goods. Modern cities suffer because individual businesses dispatch delivery vehicles independently.”",
-      actionText: "View Command Dashboard",
+      actionText: "Open Overview Dashboard",
       icon: Layers,
       action: () => {
-        onNavigateTab("dashboard");
+        onNavigateTab("overview");
       }
     },
     {
@@ -118,43 +118,43 @@ export default function DemoFlowModal({
   const StepIcon = activeStepData.icon;
 
   return (
-    <div className="fixed inset-0 z-[1200] bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-[1200] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-[#dadce0] rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col">
         
         {/* Modal Top Bar */}
-        <div className="p-4 bg-gradient-to-r from-slate-900 to-indigo-950/70 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-amber-400" />
+        <div className="p-5 border-b border-[#e8eaed] flex items-center justify-between bg-white">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-[#fef7e0] flex items-center justify-center text-[#b06000]">
+              <Sparkles className="w-4 h-4 text-[#f29900]" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Faculty Demonstration Walkthrough</h2>
-              <p className="text-[11px] text-slate-400">Step-by-step presentation script & action triggers (Section 30)</p>
+              <h2 className="text-sm font-bold text-[#202124]">Faculty Demonstration Walkthrough</h2>
+              <p className="text-xs text-[#5f6368]">Step-by-step presentation script & action sequence</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            className="p-1.5 rounded-full text-[#5f6368] hover:bg-[#f1f3f4] hover:text-[#202124]"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Stepper Progress Indicator */}
-        <div className="flex items-center px-6 py-3 bg-slate-950/60 border-b border-slate-800/80 gap-1.5 overflow-x-auto">
+        {/* Stepper Progress */}
+        <div className="flex items-center px-6 py-3 bg-[#f8fafd] border-b border-[#e8eaed] gap-1.5 overflow-x-auto">
           {steps.map((s, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentStep(idx)}
-              className={`flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap transition-all ${
+              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap transition-all ${
                 currentStep === idx
-                  ? "bg-amber-500 text-slate-950 font-bold"
+                  ? "bg-[#1a73e8] text-white shadow-xs"
                   : currentStep > idx
-                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                  : "bg-slate-800 text-slate-400"
+                  ? "bg-[#e6f4ea] text-[#137333]"
+                  : "bg-[#f1f3f4] text-[#5f6368]"
               }`}
             >
-              {currentStep > idx ? <CheckCircle2 className="w-3 h-3" /> : <span>{idx + 1}</span>}
+              {currentStep > idx ? <CheckCircle2 className="w-3.5 h-3.5" /> : <span>{idx + 1}</span>}
               <span className="hidden sm:inline">{s.title.split('.')[1]}</span>
             </button>
           ))}
@@ -163,50 +163,50 @@ export default function DemoFlowModal({
         {/* Step Content */}
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
-              <StepIcon className="w-5 h-5 text-cyan-400" />
+            <div className="w-10 h-10 rounded-2xl bg-[#e8f0fe] flex items-center justify-center text-[#1a73e8]">
+              <StepIcon className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#1a73e8] uppercase tracking-wider">
                 Step {currentStep + 1} of {steps.length}
               </span>
-              <h3 className="text-base font-bold text-white">{activeStepData.title}</h3>
-              <p className="text-xs text-slate-400">{activeStepData.subtitle}</p>
+              <h3 className="text-base font-bold text-[#202124]">{activeStepData.title}</h3>
+              <p className="text-xs text-[#5f6368]">{activeStepData.subtitle}</p>
             </div>
           </div>
 
           {/* Presentation Script Box */}
-          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-200 text-sm italic leading-relaxed">
-            <span className="font-sans not-italic text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">
+          <div className="p-4 rounded-2xl bg-[#f8fafd] border border-[#e8eaed] text-[#3c4043] text-xs leading-relaxed italic">
+            <span className="font-sans not-italic text-[10px] font-bold text-[#1a73e8] uppercase tracking-wider block mb-1">
               Recommended Presentation Script:
             </span>
             {activeStepData.script}
           </div>
 
-          {/* Action Button for this step */}
+          {/* Action Button */}
           <div className="pt-2 flex items-center justify-between">
             <button
               onClick={activeStepData.action}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-600 hover:to-indigo-700 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold shadow-xs transition-all hover:scale-[1.01]"
             >
-              <Play className="w-4 h-4 fill-white" />
-              {activeStepData.actionText}
+              <Play className="w-3.5 h-3.5 fill-white" />
+              <span>{activeStepData.actionText}</span>
             </button>
 
             <div className="flex items-center gap-2">
               <button
                 disabled={currentStep === 0}
                 onClick={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
-                className="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white text-xs disabled:opacity-30"
+                className="px-4 py-2 rounded-full border border-[#dadce0] text-[#5f6368] hover:bg-[#f1f3f4] text-xs font-medium disabled:opacity-30"
               >
                 Previous
               </button>
               <button
                 disabled={currentStep === steps.length - 1}
                 onClick={() => setCurrentStep((prev) => Math.min(steps.length - 1, prev + 1))}
-                className="flex items-center gap-1 px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold disabled:opacity-30"
+                className="flex items-center gap-1 px-4 py-2 rounded-full bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#202124] text-xs font-medium disabled:opacity-30"
               >
-                Next Step
+                <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>

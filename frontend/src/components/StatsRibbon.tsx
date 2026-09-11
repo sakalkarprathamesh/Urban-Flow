@@ -2,14 +2,14 @@
 
 import { DashboardStats } from "@/types";
 import { 
-  Package, 
   Truck, 
+  Package, 
+  Route, 
   Warehouse, 
+  Activity, 
+  Zap, 
   TrendingDown, 
-  Compass, 
-  RotateCcw, 
-  Zap,
-  Leaf
+  RotateCcw 
 } from "lucide-react";
 
 interface StatsProps {
@@ -19,91 +19,93 @@ interface StatsProps {
 export default function StatsRibbon({ stats }: StatsProps) {
   const cards = [
     {
-      title: "Active Packages",
-      value: stats ? stats.active_packages.toLocaleString() : "1,240",
-      subtext: `${stats ? stats.packages_in_transit : "480"} in active transit`,
-      icon: Package,
-      color: "text-sky-400",
-      bg: "bg-sky-500/10 border-sky-500/30",
-    },
-    {
-      title: "Consolidated Rate",
-      value: `${stats ? stats.consolidation_rate_pct : 74.2}%`,
-      subtext: `${stats ? stats.packages_consolidated : "918"} items grouped`,
-      icon: Zap,
-      color: "text-indigo-400",
-      bg: "bg-indigo-500/10 border-indigo-500/30",
-    },
-    {
       title: "Active Vehicles",
-      value: `${stats ? stats.active_vehicles : 30}`,
-      subtext: `${stats ? stats.average_vehicle_utilization_pct : 72.4}% avg utilization`,
+      value: stats ? stats.active_vehicles : 30,
+      subtext: `${stats ? stats.vehicles_in_transit : 18} currently moving`,
       icon: Truck,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10 border-emerald-500/30",
+      color: "text-[#1a73e8]",
+      accentBg: "bg-[#e8f0fe]",
     },
     {
-      title: "Active Micro-Hubs",
-      value: `${stats ? stats.active_micro_hubs : 8}`,
+      title: "Packages In Transit",
+      value: stats ? stats.packages_in_transit.toLocaleString() : "480",
+      subtext: `Out of ${stats ? stats.active_packages.toLocaleString() : "1,240"} active`,
+      icon: Package,
+      color: "text-[#1a73e8]",
+      accentBg: "bg-[#e8f0fe]",
+    },
+    {
+      title: "Active Routes",
+      value: stats ? stats.active_routes : 31,
+      subtext: "Dynamic multi-drop loops",
+      icon: Route,
+      color: "text-[#1a73e8]",
+      accentBg: "bg-[#e8f0fe]",
+    },
+    {
+      title: "Micro-Hubs",
+      value: stats ? stats.active_micro_hubs : 8,
       subtext: "Pune strategic logistics nodes",
       icon: Warehouse,
-      color: "text-cyan-400",
-      bg: "bg-cyan-500/10 border-cyan-500/30",
+      color: "text-[#1a73e8]",
+      accentBg: "bg-[#e8f0fe]",
+    },
+    {
+      title: "Vehicle Utilization",
+      value: `${stats ? stats.average_vehicle_utilization_pct : 72.4}%`,
+      subtext: "+24.4% vs uncoordinated",
+      icon: Activity,
+      color: "text-[#34a853]",
+      accentBg: "bg-[#e6f4ea]",
+    },
+    {
+      title: "Packages Consolidated",
+      value: stats ? stats.packages_consolidated.toLocaleString() : "918",
+      subtext: `${stats ? stats.consolidation_rate_pct : 74.2}% consolidation rate`,
+      icon: Zap,
+      color: "text-[#34a853]",
+      accentBg: "bg-[#e6f4ea]",
     },
     {
       title: "Trips Avoided",
       value: stats ? stats.simulated_trips_avoided.toLocaleString() : "471",
       subtext: "Simulated redundant runs cut",
       icon: TrendingDown,
-      color: "text-amber-400",
-      bg: "bg-amber-500/10 border-amber-500/30",
+      color: "text-[#34a853]",
+      accentBg: "bg-[#e6f4ea]",
     },
     {
-      title: "Distance Saved",
-      value: `${stats ? stats.simulated_distance_saved_km.toLocaleString() : "1,601"} km`,
-      subtext: "Consolidated vs independent",
-      icon: Compass,
-      color: "text-purple-400",
-      bg: "bg-purple-500/10 border-purple-500/30",
-    },
-    {
-      title: "Empty Returns Avoided",
+      title: "Reverse Pickups",
       value: stats ? stats.empty_returns_avoided : 18,
-      subtext: "Reverse logistics piggybacked",
+      subtext: "Empty return runs avoided",
       icon: RotateCcw,
-      color: "text-teal-400",
-      bg: "bg-teal-500/10 border-teal-500/30",
-    },
-    {
-      title: "Emissions Reduced",
-      value: `${stats ? stats.simulated_co2_saved_kg : 296} kg`,
-      subtext: "Simulated CO2 avoided",
-      icon: Leaf,
-      color: "text-emerald-300",
-      bg: "bg-emerald-500/10 border-emerald-500/30",
+      color: "text-[#188038]",
+      accentBg: "bg-[#e6f4ea]",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 w-full">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 w-full">
       {cards.map((c, idx) => {
         const Icon = c.icon;
         return (
           <div
             key={idx}
-            className={`p-3 rounded-xl border backdrop-blur-md flex flex-col justify-between transition-all hover:scale-[1.02] ${c.bg}`}
+            className="google-card p-3.5 flex flex-col justify-between bg-white"
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-medium text-slate-400 tracking-wider uppercase">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-medium text-[#5f6368] uppercase tracking-wider">
                 {c.title}
               </span>
-              <Icon className={`w-3.5 h-3.5 ${c.color}`} />
+              <div className={`w-6 h-6 rounded-md ${c.accentBg} flex items-center justify-center`}>
+                <Icon className={`w-3.5 h-3.5 ${c.color}`} />
+              </div>
             </div>
             <div>
-              <div className="text-lg font-bold text-white tracking-tight">
+              <div className="text-xl font-bold text-[#202124] tracking-tight">
                 {c.value}
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5 truncate">
+              <div className="text-[11px] text-[#5f6368] mt-0.5 truncate">
                 {c.subtext}
               </div>
             </div>

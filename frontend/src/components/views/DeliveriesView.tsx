@@ -14,7 +14,8 @@ import {
   Clock, 
   Truck, 
   RotateCcw,
-  Layers
+  Layers,
+  ChevronDown
 } from "lucide-react";
 
 interface DeliveriesProps {
@@ -28,11 +29,11 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
   
-  // Modal states
+  // Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showBatchModal, setShowBatchModal] = useState(false);
   
-  // New package form state
+  // Form fields
   const [recipient, setRecipient] = useState("");
   const [area, setArea] = useState("Kothrud");
   const [address, setAddress] = useState("");
@@ -64,7 +65,7 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
         body: JSON.stringify({
           recipient_name: recipient,
           dest_area: area,
-          dest_address: address || `Near ${area} Circle`,
+          dest_address: address || `Near ${area} Market`,
           dest_lat: area === "Kothrud" ? 18.5074 : area === "Hinjewadi" ? 18.5912 : 18.5679,
           dest_lng: area === "Kothrud" ? 73.8077 : area === "Hinjewadi" ? 73.7389 : 73.9143,
           weight_kg: Number(weight),
@@ -78,7 +79,7 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
       setAddress("");
       loadPackages();
     } catch (err) {
-      alert("Failed to submit delivery request.");
+      alert("Failed to create shipment order.");
     }
   };
 
@@ -110,54 +111,54 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
   });
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div className="space-y-5 max-w-7xl mx-auto px-4 sm:px-6 py-6">
       
-      {/* View Header */}
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <Package className="w-5 h-5 text-cyan-400" />
-            Consignment & Package Management
+          <h1 className="text-xl font-bold text-[#202124] flex items-center gap-2">
+            <Package className="w-5 h-5 text-[#1a73e8]" />
+            Deliveries & Spatial Clustering
           </h1>
-          <p className="text-xs text-slate-400">
-            Real-time status of orders progressing through the Pune logistics coordination network
+          <p className="text-xs text-[#5f6368]">
+            Coordinated goods manifest for the Pune urban network
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setShowBatchModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white hover:bg-[#f8f9fa] text-[#5f6368] hover:text-[#202124] text-xs font-medium border border-[#dadce0] shadow-xs transition-all"
           >
-            <UploadCloud className="w-4 h-4 text-slate-400" />
-            Bulk CSV Upload
+            <UploadCloud className="w-4 h-4 text-[#5f6368]" />
+            <span>Upload Manifest (CSV)</span>
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-md shadow-cyan-600/20 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium shadow-xs transition-all"
           >
             <Plus className="w-4 h-4" />
-            New Delivery Request
+            <span>New Delivery</span>
           </button>
           <button
             onClick={onTriggerOptimize}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1a73e8] text-xs font-semibold border border-[#d2e3fc] transition-all"
           >
             <Sparkles className="w-4 h-4" />
-            Optimize Network
+            <span>Optimize Network</span>
           </button>
         </div>
       </div>
 
-      {/* Active Clusters Showcase (Section 9) */}
-      <div className="glass-panel p-4 rounded-xl border border-slate-800">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-            <Layers className="w-4 h-4 text-indigo-400" />
+      {/* Active Clusters Card (Item 9 from spec) */}
+      <div className="google-card p-5 bg-white space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-bold text-[#202124] uppercase tracking-wider flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#1a73e8]" />
             Active Delivery Clusters Formed ({clusters.length})
           </h2>
-          <span className="text-[11px] text-cyan-400">
-            Intelligently grouped by Haversine proximity & Hub capacity
+          <span className="text-[11px] text-[#5f6368]">
+            Grouped by Haversine proximity & Hub capacity thresholds
           </span>
         </div>
 
@@ -165,115 +166,134 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
           {clusters.map((c) => (
             <div
               key={c.id}
-              className="p-3 rounded-lg bg-slate-900/90 border border-indigo-500/30 text-xs space-y-1.5"
+              className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed] text-xs space-y-1"
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-indigo-300">{c.code}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold">
-                  CONSOLIDATED
+                <span className="font-bold text-[#1a73e8]">{c.code}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#e6f4ea] text-[#188038] font-semibold">
+                  Consolidated
                 </span>
               </div>
-              <div className="text-slate-300 font-medium">
+              <div className="text-[#202124] font-medium pt-1">
                 {c.package_count} Packages • {c.total_weight_kg} kg
               </div>
-              <div className="text-[11px] text-slate-400">
-                Hub: <b className="text-slate-200">Hub 0{c.hub_id || 1}</b>
-              </div>
-              <div className="text-[10px] text-emerald-400 font-mono">
-                Centroid: [{c.lat.toFixed(3)}, {c.lng.toFixed(3)}]
+              <div className="text-[11px] text-[#5f6368]">
+                Assigned: <b className="text-[#202124]">Hub 0{c.hub_id || 1}</b>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Filters and Search Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+      {/* Search & Filter Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#e8eaed]">
+        <div className="relative flex-1 min-w-[260px]">
+          <Search className="w-4 h-4 text-[#5f6368] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tracking code, recipient, or Pune area..."
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-slate-200 outline-none focus:border-cyan-500 transition-all placeholder:text-slate-600"
+            placeholder="Search delivery ID, business, recipient, or Pune area..."
+            className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-xl pl-9 pr-3 py-2 text-xs text-[#202124] outline-none focus:border-[#1a73e8] focus:bg-white transition-all placeholder:text-[#80868b]"
           />
         </div>
 
-        {/* Status Filter Buttons */}
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          {["ALL", "CREATED", "CONSOLIDATED", "IN_TRANSIT", "DELIVERED", "RETURN_REQUESTED"].map((st) => (
+        {/* Status Chips (Item 11) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs">
+          {[
+            { id: "ALL", label: "All" },
+            { id: "CREATED", label: "Created" },
+            { id: "ASSIGNED", label: "Assigned" },
+            { id: "AT_MICRO_HUB", label: "At Micro-Hub" },
+            { id: "CONSOLIDATED", label: "Consolidated" },
+            { id: "IN_TRANSIT", label: "In Transit" },
+            { id: "DELIVERED", label: "Delivered" },
+            { id: "RETURN_REQUESTED", label: "Return Requested" },
+          ].map((st) => (
             <button
-              key={st}
-              onClick={() => setSelectedStatus(st)}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
-                selectedStatus === st
-                  ? "bg-cyan-500 text-slate-950 font-bold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              key={st.id}
+              onClick={() => setSelectedStatus(st.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                selectedStatus === st.id
+                  ? "bg-[#1a73e8] text-white font-semibold"
+                  : "bg-[#f1f3f4] text-[#5f6368] hover:text-[#202124] hover:bg-[#e8eaed]"
               }`}
             >
-              {st}
+              {st.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Deliveries Table */}
-      <div className="glass-panel rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+      {/* Data Table (Item 11 columns) */}
+      <div className="google-card overflow-hidden bg-white">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-semibold text-[10px] border-b border-slate-800">
+            <thead className="bg-[#f8fafd] text-[#5f6368] uppercase tracking-wider font-semibold text-[11px] border-b border-[#e8eaed]">
               <tr>
-                <th className="py-3 px-4">Tracking Code</th>
-                <th className="py-3 px-4">Sender / Merchant</th>
-                <th className="py-3 px-4">Recipient & Address</th>
-                <th className="py-3 px-4">Destination Area</th>
+                <th className="py-3 px-4">Delivery ID</th>
+                <th className="py-3 px-4">Business</th>
+                <th className="py-3 px-4">Recipient</th>
+                <th className="py-3 px-4">Destination</th>
                 <th className="py-3 px-4">Weight</th>
                 <th className="py-3 px-4">Priority</th>
-                <th className="py-3 px-4">Network Status</th>
-                <th className="py-3 px-4">Cluster</th>
+                <th className="py-3 px-4">Hub</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">ETA</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-slate-300">
+            <tbody className="divide-y divide-[#f1f3f4] text-[#3c4043]">
               {filteredPackages.map((p) => {
-                const isConsolidated = p.status === "CONSOLIDATED" || p.status === "IN_TRANSIT" || p.status === "DELIVERED";
+                const isDelivered = p.status === "DELIVERED";
+                const isTransit = p.status === "IN_TRANSIT";
+                const isConsolidated = p.status === "CONSOLIDATED";
+                const isReturn = p.status === "RETURN_REQUESTED";
+
+                const chipClass = isDelivered
+                  ? "bg-[#e6f4ea] text-[#137333]"
+                  : isTransit
+                  ? "bg-[#e8f0fe] text-[#1a73e8]"
+                  : isConsolidated
+                  ? "bg-[#e8f0fe] text-[#1a73e8]"
+                  : isReturn
+                  ? "bg-[#fef7e0] text-[#b06000]"
+                  : "bg-[#f1f3f4] text-[#5f6368]";
+
                 return (
-                  <tr key={p.id} className="hover:bg-slate-900/50 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-white flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                  <tr key={p.id} className="hover:bg-[#f8fafd] transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-semibold text-[#202124]">
                       {p.tracking_code}
                     </td>
-                    <td className="py-3 px-4 text-slate-400">{p.sender_name}</td>
-                    <td className="py-3 px-4 font-medium text-slate-200">
-                      <div>{p.recipient_name}</div>
-                      <div className="text-[10px] text-slate-500 truncate max-w-[180px]">{p.dest_address}</div>
+                    <td className="py-3.5 px-4 text-[#5f6368]">
+                      {p.sender_name}
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                        {p.dest_area}
-                      </span>
+                    <td className="py-3.5 px-4 text-[#202124] font-medium">
+                      {p.recipient_name}
                     </td>
-                    <td className="py-3 px-4 font-mono">{p.weight_kg} kg</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        p.priority === "EXPRESS" ? "bg-amber-500/20 text-amber-300" : "bg-slate-800 text-slate-400"
+                    <td className="py-3.5 px-4">
+                      <span className="font-medium text-[#202124]">{p.dest_area}</span>
+                      <div className="text-[11px] text-[#80868b] truncate max-w-[160px]">{p.dest_address}</div>
+                    </td>
+                    <td className="py-3.5 px-4 font-mono text-[#5f6368]">
+                      {p.weight_kg} kg
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                        p.priority === "EXPRESS" ? "bg-[#fce8e6] text-[#c5221f]" : "bg-[#f1f3f4] text-[#5f6368]"
                       }`}>
                         {p.priority}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        p.status === "DELIVERED" ? "bg-emerald-500/20 text-emerald-300" :
-                        p.status === "IN_TRANSIT" ? "bg-sky-500/20 text-sky-300" :
-                        p.status === "CONSOLIDATED" ? "bg-indigo-500/20 text-indigo-300" :
-                        p.status === "RETURN_REQUESTED" ? "bg-teal-500/20 text-teal-300" :
-                        "bg-slate-800 text-slate-400"
-                      }`}>
-                        {p.status}
+                    <td className="py-3.5 px-4 font-medium text-[#1a73e8]">
+                      Hub 0{p.assigned_hub_id || 1}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${chipClass}`}>
+                        {p.status.replace("_", " ")}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono text-[11px] text-indigo-400 font-semibold">
-                      {p.cluster_id ? `UF-C00${p.cluster_id}` : "Unclustered"}
+                    <td className="py-3.5 px-4 font-mono text-[#5f6368]">
+                      {p.deadline || "18:00"}
                     </td>
                   </tr>
                 );
@@ -283,33 +303,33 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
         </div>
       </div>
 
-      {/* Create Delivery Modal */}
+      {/* New Delivery Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-[1200] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-md w-full p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-sm font-bold text-white">Create New Delivery Request</h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-white">✕</button>
+        <div className="fixed inset-0 z-[1200] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#dadce0] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-2 border-b border-[#e8eaed]">
+              <h3 className="text-base font-bold text-[#202124]">Create Delivery Request</h3>
+              <button onClick={() => setShowCreateModal(false)} className="text-[#5f6368] hover:text-[#202124]">✕</button>
             </div>
             <form onSubmit={handleCreateDelivery} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">Recipient Name</label>
+                <label className="block text-[#5f6368] mb-1 font-medium">Recipient Name</label>
                 <input
                   type="text"
                   required
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value)}
                   placeholder="e.g. Ramesh Kulkarni"
-                  className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white outline-none focus:border-cyan-500"
+                  className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none focus:border-[#1a73e8] focus:bg-white"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-400 mb-1">Pune Area</label>
+                  <label className="block text-[#5f6368] mb-1 font-medium">Pune Area</label>
                   <select
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white outline-none"
+                    className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
                   >
                     <option value="Kothrud">Kothrud</option>
                     <option value="Shivajinagar">Shivajinagar</option>
@@ -322,33 +342,33 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1">Weight (kg)</label>
+                  <label className="block text-[#5f6368] mb-1 font-medium">Weight (kg)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={weight}
                     onChange={(e) => setWeight(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white outline-none"
+                    className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-slate-400 mb-1">Street Address</label>
+                <label className="block text-[#5f6368] mb-1 font-medium">Street Address</label>
                 <input
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="e.g. Plot 42, Mayur Colony, Paud Road"
-                  className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white outline-none"
+                  placeholder="e.g. Plot 42, Paud Road, Kothrud"
+                  className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-slate-400 mb-1">Priority</label>
+                  <label className="block text-[#5f6368] mb-1 font-medium">Priority</label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white outline-none"
+                    className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
                   >
                     <option value="STANDARD">Standard</option>
                     <option value="EXPRESS">Express (Time Sensitive)</option>
@@ -356,12 +376,12 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
                   </select>
                 </div>
                 <div className="flex items-center pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                  <label className="flex items-center gap-2 cursor-pointer text-[#3c4043]">
                     <input
                       type="checkbox"
                       checked={isReverse}
                       onChange={(e) => setIsReverse(e.target.checked)}
-                      className="rounded border-slate-700"
+                      className="rounded border-[#dadce0] text-[#1a73e8]"
                     />
                     Reverse Return Eligible
                   </label>
@@ -371,13 +391,13 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-3 py-1.5 rounded bg-slate-800 text-slate-400"
+                  className="px-3.5 py-1.5 rounded-lg border border-[#dadce0] text-[#5f6368] hover:bg-[#f1f3f4]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-bold"
+                  className="px-4 py-1.5 rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium"
                 >
                   Submit Order
                 </button>
@@ -389,30 +409,30 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
 
       {/* Batch Upload Modal */}
       {showBatchModal && (
-        <div className="fixed inset-0 z-[1200] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-md w-full p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-sm font-bold text-white">Business Consignment Ingest</h3>
-              <button onClick={() => setShowBatchModal(false)} className="text-slate-400 hover:text-white">✕</button>
+        <div className="fixed inset-0 z-[1200] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#dadce0] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-2 border-b border-[#e8eaed]">
+              <h3 className="text-base font-bold text-[#202124]">Business Manifest Ingest</h3>
+              <button onClick={() => setShowBatchModal(false)} className="text-[#5f6368] hover:text-[#202124]">✕</button>
             </div>
-            <p className="text-xs text-slate-400">
-              Businesses can upload manifests containing multiple delivery orders to evaluate consolidation opportunities.
+            <p className="text-xs text-[#5f6368]">
+              Upload CSV manifests to identify multi-merchant consolidation opportunities across Pune.
             </p>
-            <div className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center space-y-2">
-              <UploadCloud className="w-8 h-8 text-cyan-400 mx-auto" />
-              <div className="text-xs font-semibold text-slate-200">Drag & drop CSV shipment manifest</div>
-              <div className="text-[10px] text-slate-500">Supports columns: Package ID, Destination, Weight, Priority, Deadline</div>
+            <div className="border-2 border-dashed border-[#dadce0] rounded-2xl p-6 text-center space-y-2 bg-[#f8fafd]">
+              <UploadCloud className="w-8 h-8 text-[#1a73e8] mx-auto" />
+              <div className="text-xs font-medium text-[#202124]">Drop shipment manifest here</div>
+              <div className="text-[11px] text-[#80868b]">Supported columns: Delivery ID, Business, Destination, Weight, Priority</div>
             </div>
             <div className="flex items-center justify-between pt-2">
               <button
                 onClick={handleBatchSample}
-                className="px-3 py-1.5 rounded bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 text-xs font-semibold hover:bg-indigo-600/50 transition-all"
+                className="px-3 py-1.5 rounded-lg bg-[#e8f0fe] border border-[#d2e3fc] text-[#1a73e8] text-xs font-semibold hover:bg-[#d2e3fc]"
               >
-                Ingest Sample Enterprise Batch
+                Ingest Sample Consignment
               </button>
               <button
                 onClick={() => setShowBatchModal(false)}
-                className="px-3 py-1.5 rounded bg-slate-800 text-slate-400 text-xs"
+                className="px-3.5 py-1.5 rounded-lg border border-[#dadce0] text-[#5f6368] text-xs hover:bg-[#f1f3f4]"
               >
                 Close
               </button>

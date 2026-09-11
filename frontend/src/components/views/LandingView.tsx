@@ -1,154 +1,145 @@
 "use client";
 
 import { 
-  Network, 
   ArrowRight, 
-  Layers, 
-  Truck, 
   Warehouse, 
+  Truck, 
   RotateCcw, 
-  ShieldCheck, 
-  TrendingUp, 
   Sparkles,
-  MapPin
+  Layers,
+  ChevronRight,
+  ShieldCheck,
+  Zap
 } from "lucide-react";
 
 interface LandingProps {
   onExplore: () => void;
+  onSeeHowItWorks?: () => void;
 }
 
-export default function LandingView({ onExplore }: LandingProps) {
+export default function LandingView({ onExplore, onSeeHowItWorks }: LandingProps) {
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-between overflow-hidden bg-gradient-to-b from-slate-950 via-[#080d1a] to-slate-950 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-between bg-white px-4 py-10 sm:px-6 lg:px-12">
       
-      {/* Background glowing gradients */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-cyan-500/10 blur-[130px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-10 right-10 w-[450px] h-[300px] bg-indigo-500/10 blur-[140px] pointer-events-none rounded-full" />
-
-      {/* Main Hero Header */}
-      <div className="max-w-4xl mx-auto text-center relative z-10 pt-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-6 animate-pulse">
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          Intelligent Urban Logistics Coordination Platform • Pune Urban Pilot
+      {/* Hero Header */}
+      <div className="max-w-4xl mx-auto text-center pt-6">
+        
+        {/* Subtle Pill Tag */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e8f0fe] border border-[#d2e3fc] text-[#1a73e8] text-xs font-medium mb-6">
+          <Sparkles className="w-3.5 h-3.5 text-[#1a73e8]" />
+          <span>Urban Flow Web Platform • Pune City Logistics Pilot</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.15] mb-6">
-          The <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">second road network</span> for everything your city needs.
+        {/* Big Confident Heading */}
+        <h1 className="text-4xl sm:text-6xl font-bold text-[#202124] tracking-tight leading-[1.15] mb-5">
+          The <span className="text-[#1a73e8]">second road network</span> for everything your city needs.
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
-          Today's urban roads move people, while goods travel through a fragmented parallel system of uncoordinated vehicles, empty return trips, and congested neighborhoods. Urban Flow creates a shared intelligent coordination layer that clusters shipments, connects them through micro-hubs, and synchronizes reverse logistics.
+        {/* Supporting Text */}
+        <p className="text-lg sm:text-xl text-[#5f6368] max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
+          Today's roads move people. Urban Flow makes them intelligently move everything people need.
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        {/* Clean CTAs */}
+        <div className="flex flex-wrap items-center justify-center gap-3.5">
           <button
             onClick={onExplore}
-            className="flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-600 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all transform hover:scale-[1.03] active:scale-[0.98]"
+            className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm shadow-sm hover:shadow-md transition-all transform hover:scale-[1.01]"
           >
-            Explore the City Network
+            <span>Explore the City Network</span>
             <ArrowRight className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onSeeHowItWorks || onExplore}
+            className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#202124] font-medium text-sm transition-all"
+          >
+            <span>See How It Works</span>
+            <ChevronRight className="w-4 h-4 text-[#5f6368]" />
           </button>
         </div>
       </div>
 
-      {/* Concept Diagram: Fragmented vs Urban Flow */}
-      <div className="max-w-5xl mx-auto w-full my-12 relative z-10">
-        <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-2xl">
-          <h2 className="text-xs font-bold text-slate-400 tracking-wider uppercase text-center mb-6">
-            The Core Concept: From Uncoordinated Trips to Coordinated Urban Flow
+      {/* 5-Step Process Flow (Item 10) */}
+      <div className="max-w-5xl mx-auto w-full my-12">
+        <div className="text-center mb-6">
+          <span className="text-xs font-semibold text-[#1a73e8] uppercase tracking-wider">
+            Intelligent Goods Movement Workflow
+          </span>
+          <h2 className="text-lg font-bold text-[#202124] mt-1">
+            How Urban Flow Coordinates City Deliveries
           </h2>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            
-            {/* Left: Fragmented Traditional */}
-            <div className="p-5 rounded-xl bg-slate-900/80 border border-red-500/20 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-red-400">Conventional Logistics</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/20 text-red-300">Fragmented</span>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
+          {[
+            {
+              step: "01",
+              title: "Independent Deliveries",
+              desc: "Parcels from restaurants, e-commerce, pharmacies, and local businesses.",
+              icon: "📦",
+            },
+            {
+              step: "02",
+              title: "Demand Analysis",
+              desc: "Urban Flow scans destination corridors and delivery time windows.",
+              icon: "🧠",
+            },
+            {
+              step: "03",
+              title: "Micro-Hub Consolidation",
+              desc: "Shipments grouped into 8 strategically located Pune neighborhood micro-hubs.",
+              icon: "🏬",
+            },
+            {
+              step: "04",
+              title: "Optimized Routes",
+              desc: "High-utilization multi-drop routes dispatched via EV cargo vehicles.",
+              icon: "🚚",
+            },
+            {
+              step: "05",
+              title: "Reverse Return Flow",
+              desc: "Returns and eligible pickups piggyback on returning vehicles. Zero empty trips.",
+              icon: "↺",
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="google-card p-4 text-center bg-white flex flex-col justify-between h-48 relative group"
+            >
+              <div>
+                <div className="text-2xl mb-2">{item.icon}</div>
+                <span className="text-[11px] font-mono font-bold text-[#1a73e8] block mb-1">
+                  STEP {item.step}
+                </span>
+                <h3 className="text-xs font-bold text-[#202124] leading-snug">
+                  {item.title}
+                </h3>
               </div>
-              <p className="text-xs text-slate-400">
-                Multiple independent delivery vans travel to the same neighborhood carrying 35-48% capacity. Many return completely empty.
+              <p className="text-[11px] text-[#5f6368] leading-relaxed">
+                {item.desc}
               </p>
-              <div className="space-y-1.5 text-[11px] font-mono text-slate-300">
-                <div className="p-2 rounded bg-slate-950/60 flex items-center justify-between">
-                  <span>Merchant A ➔ Kothrud</span>
-                  <span className="text-red-400">Van 1 (30% load)</span>
-                </div>
-                <div className="p-2 rounded bg-slate-950/60 flex items-center justify-between">
-                  <span>Merchant B ➔ Kothrud</span>
-                  <span className="text-red-400">Van 2 (40% load)</span>
-                </div>
-                <div className="p-2 rounded bg-slate-950/60 flex items-center justify-between">
-                  <span>Return ➔ Empty</span>
-                  <span className="text-red-400">100% empty trip</span>
-                </div>
-              </div>
             </div>
-
-            {/* Center: Urban Flow Coordination Mechanism */}
-            <div className="p-5 rounded-xl bg-gradient-to-b from-cyan-950/40 to-indigo-950/40 border border-cyan-500/40 text-center flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 shadow-lg shadow-cyan-500/20">
-                <Network className="w-6 h-6 animate-pulse" />
-              </div>
-              <h3 className="text-sm font-bold text-white">Urban Flow Optimization Engine</h3>
-              <p className="text-[11px] text-slate-300">
-                Examines undelivered demand ➔ Spatial clustering ➔ Micro-hub allocation ➔ Capacity vehicle dispatch ➔ Return pickup pairing.
-              </p>
-              <div className="text-[10px] text-cyan-300 font-mono bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/30">
-                Demand Analysis ➔ Clustering ➔ Micro-Hub ➔ Reverse
-              </div>
-            </div>
-
-            {/* Right: Urban Flow Consolidated Result */}
-            <div className="p-5 rounded-xl bg-slate-900/80 border border-emerald-500/30 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-400">Urban Flow Coordination</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">Consolidated</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Packages are grouped into a micro-hub. 1 EV vehicle handles the consolidated neighborhood drop, then picks up returns on its way back.
-              </p>
-              <div className="space-y-1.5 text-[11px] font-mono text-slate-300">
-                <div className="p-2 rounded bg-slate-950/60 flex items-center justify-between">
-                  <span>Hub 02 ➔ Paud Road</span>
-                  <span className="text-emerald-400">1 EV Van (78% load)</span>
-                </div>
-                <div className="p-2 rounded bg-slate-950/60 flex items-center justify-between">
-                  <span>Stops 1-4 ➔ Delivered</span>
-                  <span className="text-emerald-400">14 packages</span>
-                </div>
-                <div className="p-2 rounded bg-slate-950/60 flex items-center justify-between">
-                  <span>Return ➔ Piggybacked</span>
-                  <span className="text-emerald-400">4 reverse pickups</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Footer Features */}
-      <div className="max-w-5xl mx-auto w-full grid grid-cols-2 md:grid-cols-4 gap-4 text-center pb-4 relative z-10">
-        <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-          <Warehouse className="w-5 h-5 text-cyan-400 mx-auto mb-1.5" />
-          <h4 className="text-xs font-bold text-white">8 Pune Micro-Hubs</h4>
-          <p className="text-[10px] text-slate-400">Strategically distributed nodes</p>
+      {/* Clean Bottom Value Props */}
+      <div className="max-w-4xl mx-auto w-full grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#f1f3f4] text-center">
+        <div className="p-3">
+          <div className="text-2xl font-bold text-[#1a73e8]">38%</div>
+          <div className="text-xs font-semibold text-[#202124] mt-0.5">Trips Avoided</div>
+          <div className="text-[11px] text-[#5f6368]">Simulated reduction in urban goods runs</div>
         </div>
-        <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-          <Truck className="w-5 h-5 text-emerald-400 mx-auto mb-1.5" />
-          <h4 className="text-xs font-bold text-white">38% Trips Avoided</h4>
-          <p className="text-[10px] text-slate-400">Simulated reduction in urban runs</p>
+        <div className="p-3">
+          <div className="text-2xl font-bold text-[#34a853]">72%</div>
+          <div className="text-xs font-semibold text-[#202124] mt-0.5">Average Utilization</div>
+          <div className="text-[11px] text-[#5f6368]">Consolidated capacity vs 48% conventional</div>
         </div>
-        <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-          <RotateCcw className="w-5 h-5 text-teal-400 mx-auto mb-1.5" />
-          <h4 className="text-xs font-bold text-white">Reverse Logistics</h4>
-          <p className="text-[10px] text-slate-400">No more empty return legs</p>
-        </div>
-        <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-          <ShieldCheck className="w-5 h-5 text-indigo-400 mx-auto mb-1.5" />
-          <h4 className="text-xs font-bold text-white">Dynamic Rerouting</h4>
-          <p className="text-[10px] text-slate-400">Live response to traffic incidents</p>
+        <div className="p-3">
+          <div className="text-2xl font-bold text-[#188038]">Zero</div>
+          <div className="text-xs font-semibold text-[#202124] mt-0.5">Deadhead Returns</div>
+          <div className="text-[11px] text-[#5f6368]">Automated reverse logistics pairing</div>
         </div>
       </div>
 

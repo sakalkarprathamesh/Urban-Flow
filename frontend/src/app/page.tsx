@@ -4,15 +4,18 @@ import { useState, useEffect } from "react";
 import { DashboardStats, MapDataResponse, MicroHub, Vehicle } from "@/types";
 import { fetchApi } from "@/lib/api";
 
-import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 import LandingView from "@/components/views/LandingView";
 import DashboardView from "@/components/views/DashboardView";
 import LiveMapView from "@/components/views/LiveMapView";
 import DeliveriesView from "@/components/views/DeliveriesView";
 import HubsView from "@/components/views/HubsView";
 import VehiclesView from "@/components/views/VehiclesView";
+import RoutesView from "@/components/views/RoutesView";
 import ReverseLogisticsView from "@/components/views/ReverseLogisticsView";
 import SimulationView from "@/components/views/SimulationView";
+import AnalyticsView from "@/components/views/AnalyticsView";
 import PlanningView from "@/components/views/PlanningView";
 import DriverPortalView from "@/components/views/DriverPortalView";
 import CustomerPortalView from "@/components/views/CustomerPortalView";
@@ -23,6 +26,7 @@ import DemoFlowModal from "@/components/DemoFlowModal";
 export default function Home() {
   const [currentTab, setCurrentTab] = useState<string>("landing");
   const [currentRole, setCurrentRole] = useState<string>("admin");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [mapData, setMapData] = useState<MapDataResponse | null>(null);
@@ -42,22 +46,21 @@ export default function Home() {
       setStats(statsRes);
       setMapData(mapRes);
 
-      // Check if any route is rerouted
       if (mapRes.routes && mapRes.routes.some((r) => r.is_rerouted)) {
         setIsRerouted(true);
       }
     } catch (err) {
-      console.error("Telemetry load failed:", err);
+      console.error("Telemetry load error:", err);
     }
   };
 
   useEffect(() => {
     loadTelemetry();
-    const interval = setInterval(loadTelemetry, 15000); // 15s auto polling
+    const interval = setInterval(loadTelemetry, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  // Action: Optimize Network (Clustering Algorithm)
+  // Action: Optimize Network
   const handleOptimizeNetwork = async () => {
     try {
       const res = await fetchApi<any>("/api/deliveries/optimize", { method: "POST" });
@@ -68,7 +71,7 @@ export default function Home() {
     }
   };
 
-  // Action: Simulate Road Closure & Dynamic Rerouting (Section 13)
+  // Action: Simulate Road Closure
   const handleSimulateReroute = async () => {
     try {
       const res = await fetchApi<any>("/api/routes/simulate-road-closure", {
@@ -98,12 +101,12 @@ export default function Home() {
     }
   };
 
-  // Action: Reverse Logistics Matcher (Section 14)
+  // Action: Reverse Logistics Matcher
   const handleReverseMatch = async () => {
     try {
       const res = await fetchApi<any>("/api/reverse-logistics/match", { method: "POST" });
       await loadTelemetry();
-      alert(`Reverse Logistics Piggybacking Active: Paired ${res.newly_matched_pickups} return packages with returning delivery vehicles!`);
+      alert(`Reverse Logistics Match Active: Paired ${res.newly_matched_pickups} return packages with returning delivery vehicles!`);
     } catch (e) {
       alert("Reverse matcher failed.");
     }
@@ -119,98 +122,139 @@ export default function Home() {
     } else if (role === "business") {
       setCurrentTab("deliveries");
     } else {
-      setCurrentTab("dashboard");
+      setCurrentTab("overview");
     }
   };
 
+  const isLanding = currentTab === "landing";
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950">
+    <div className="min-h-screen flex bg-[#f8fafd] text-[#202124] font-sans antialiased">
       
-      {/* Top Navigation Bar */}
-      <Navbar
-        currentTab={currentTab}
-        onSelectTab={setCurrentTab}
-        currentRole={currentRole}
-        onSelectRole={handleSelectRole}
-        onToggleAi={() => setIsAiOpen(!isAiOpen)}
-        onStartDemoFlow={() => setIsDemoOpen(true)}
-      />
+      {/* Left Google Workspace-Style Navigation Sidebar */}
+      {!isLanding && (
+        <Sidebar
+          currentTab={currentTab}
+          onSelectTab={setCurrentTab}
+          currentRole={currentRole}
+          onSelectRole={handleSelectRole}
+          onOpenAi={() => setIsAiOpen(true)}
+          onStartDemoFlow={() => setIsDemoOpen(true)}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+      )}
 
-      {/* Main Content Body */}
-      <main className="flex-1 w-full">
-        {/* Role-Specific Overrides */}
-        {currentRole === "driver" && <DriverPortalView />}
-        {currentRole === "customer" && <CustomerPortalView />}
-
-        {/* Admin / Business Normal Views */}
-        {currentRole !== "driver" && currentRole !== "customer" && (
-          <>
-            {currentTab === "landing" && (
-              <LandingView onExplore={() => setCurrentTab("dashboard")} />
-            )}
-
-            {currentTab === "dashboard" && (
-              <DashboardView
-                stats={stats}
-                mapData={mapData}
-                onSimulateReroute={handleSimulateReroute}
-                onClearClosure={handleClearClosure}
-                onOptimizeNetwork={handleOptimizeNetwork}
-                onSelectHub={(h) => {}}
-                onSelectVehicle={(v) => {}}
-                isRerouted={isRerouted}
-                rerouteDetails={rerouteDetails}
-              />
-            )}
-
-            {currentTab === "map" && (
-              <LiveMapView
-                mapData={mapData}
-                onSimulateReroute={handleSimulateReroute}
-                onClearClosure={handleClearClosure}
-                isRerouted={isRerouted}
-              />
-            )}
-
-            {currentTab === "deliveries" && (
-              <DeliveriesView
-                onTriggerOptimize={handleOptimizeNetwork}
-                clusters={mapData?.clusters || []}
-              />
-            )}
-
-            {currentTab === "hubs" && (
-              <HubsView hubs={mapData?.hubs || []} />
-            )}
-
-            {currentTab === "vehicles" && (
-              <VehiclesView vehicles={mapData?.vehicles || []} />
-            )}
-
-            {currentTab === "reverse" && (
-              <ReverseLogisticsView
-                onTriggerReverseMatch={handleReverseMatch}
-              />
-            )}
-
-            {currentTab === "simulation" && (
-              <SimulationView />
-            )}
-
-            {currentTab === "planning" && (
-              <PlanningView />
-            )}
-          </>
+      {/* Main Content Area */}
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+          !isLanding ? (isSidebarCollapsed ? "pl-20" : "pl-64") : ""
+        }`}
+      >
+        {/* Top Header Bar */}
+        {!isLanding && (
+          <Header
+            currentTab={currentTab}
+            currentRole={currentRole}
+            onOpenAi={() => setIsAiOpen(true)}
+            onStartDemoFlow={() => setIsDemoOpen(true)}
+            isSidebarCollapsed={isSidebarCollapsed}
+          />
         )}
-      </main>
 
-      {/* Floating Urban Intelligence Assistant Drawer */}
+        {/* Dynamic View Router */}
+        <main className="flex-1 w-full">
+          {/* Role-Specific Web Portals */}
+          {currentRole === "driver" && <DriverPortalView />}
+          {currentRole === "customer" && <CustomerPortalView />}
+
+          {/* Admin / Business Views */}
+          {currentRole !== "driver" && currentRole !== "customer" && (
+            <>
+              {currentTab === "landing" && (
+                <LandingView
+                  onExplore={() => setCurrentTab("overview")}
+                  onSeeHowItWorks={() => setCurrentTab("simulation")}
+                />
+              )}
+
+              {currentTab === "overview" && (
+                <DashboardView
+                  stats={stats}
+                  mapData={mapData}
+                  onSimulateReroute={handleSimulateReroute}
+                  onClearClosure={handleClearClosure}
+                  onOptimizeNetwork={handleOptimizeNetwork}
+                  onSelectHub={(h) => {}}
+                  onSelectVehicle={(v) => {}}
+                  isRerouted={isRerouted}
+                  rerouteDetails={rerouteDetails}
+                />
+              )}
+
+              {currentTab === "map" && (
+                <LiveMapView
+                  mapData={mapData}
+                  onSimulateReroute={handleSimulateReroute}
+                  onClearClosure={handleClearClosure}
+                  isRerouted={isRerouted}
+                />
+              )}
+
+              {currentTab === "deliveries" && (
+                <DeliveriesView
+                  onTriggerOptimize={handleOptimizeNetwork}
+                  clusters={mapData?.clusters || []}
+                />
+              )}
+
+              {currentTab === "hubs" && (
+                <HubsView
+                  hubs={mapData?.hubs || []}
+                  onNavigateTab={setCurrentTab}
+                />
+              )}
+
+              {currentTab === "vehicles" && (
+                <VehiclesView vehicles={mapData?.vehicles || []} />
+              )}
+
+              {currentTab === "routes" && (
+                <RoutesView
+                  routes={mapData?.routes || []}
+                  onNavigateToMap={() => setCurrentTab("map")}
+                />
+              )}
+
+              {currentTab === "reverse" && (
+                <ReverseLogisticsView
+                  onTriggerReverseMatch={handleReverseMatch}
+                />
+              )}
+
+              {currentTab === "simulation" && (
+                <SimulationView />
+              )}
+
+              {currentTab === "analytics" && (
+                <AnalyticsView />
+              )}
+
+              {currentTab === "planning" && (
+                <PlanningView />
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* Floating AI Intelligence Assistant Drawer */}
       <AiAssistantDrawer
         isOpen={isAiOpen}
         onClose={() => setIsAiOpen(false)}
       />
 
-      {/* Faculty Demonstration Walkthrough Modal (Section 30) */}
+      {/* Faculty Demonstration Walkthrough Modal */}
       <DemoFlowModal
         isOpen={isDemoOpen}
         onClose={() => setIsDemoOpen(false)}

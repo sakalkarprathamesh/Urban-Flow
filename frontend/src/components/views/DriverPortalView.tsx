@@ -7,11 +7,11 @@ import {
   MapPin, 
   CheckCircle2, 
   Clock, 
-  AlertCircle, 
-  Navigation, 
-  Package, 
+  AlertTriangle, 
   RotateCcw,
-  RefreshCw
+  RefreshCw,
+  XCircle,
+  Package
 } from "lucide-react";
 
 export default function DriverPortalView() {
@@ -52,62 +52,65 @@ export default function DriverPortalView() {
 
   if (loading && !routeData) {
     return (
-      <div className="p-12 text-center text-slate-400 text-xs">
-        <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-cyan-400" />
-        Loading Driver Dispatch Portal...
+      <div className="p-16 text-center text-[#5f6368] text-xs">
+        <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#1a73e8]" />
+        Loading Delivery Agent Web Portal...
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
       
-      {/* Mobile-Friendly Driver Header */}
-      <div className="glass-panel p-5 rounded-2xl border border-slate-800 bg-slate-900/90 shadow-xl space-y-3">
+      {/* Agent Web Console Header (Item 9) */}
+      <div className="google-card p-6 bg-white space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#e8f0fe] flex items-center justify-center text-[#1a73e8]">
               <Truck className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">
-                Driver Navigation Console
+              <span className="text-[11px] font-bold text-[#1a73e8] uppercase tracking-wider">
+                Delivery Agent Web Portal
               </span>
-              <h2 className="text-base font-bold text-white">Route {routeData?.route_code || "UF-R001"}</h2>
+              <h2 className="text-lg font-bold text-[#202124]">
+                Active Route {routeData?.route_code || "UF-R001"}
+              </h2>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#137333]">
             {routeData?.status?.toUpperCase() || "ACTIVE"}
           </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center text-xs">
-          <div className="p-2 rounded bg-slate-950/60">
-            <span className="text-slate-500 block text-[10px]">Vehicle:</span>
-            <span className="font-bold text-white">{routeData?.vehicle?.code} ({routeData?.vehicle?.type})</span>
+        {/* 3 Overview Badges */}
+        <div className="grid grid-cols-3 gap-3 pt-2 border-t border-[#f1f3f4] text-center text-xs">
+          <div className="p-3 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+            <span className="text-[#80868b] block text-[11px]">Assigned Vehicle</span>
+            <span className="font-bold text-[#202124]">{routeData?.vehicle?.code} ({routeData?.vehicle?.type})</span>
           </div>
-          <div className="p-2 rounded bg-slate-950/60">
-            <span className="text-slate-500 block text-[10px]">Total Distance:</span>
-            <span className="font-bold text-white">{routeData?.total_distance_km} km</span>
+          <div className="p-3 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+            <span className="text-[#80868b] block text-[11px]">Total Route Distance</span>
+            <span className="font-bold text-[#202124]">{routeData?.total_distance_km} km</span>
           </div>
-          <div className="p-2 rounded bg-slate-950/60">
-            <span className="text-slate-500 block text-[10px]">Route ETA:</span>
-            <span className="font-bold text-sky-400">{routeData?.eta_min} min</span>
+          <div className="p-3 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+            <span className="text-[#80868b] block text-[11px]">Estimated Turnaround</span>
+            <span className="font-bold text-[#1a73e8]">{routeData?.eta_min} min</span>
           </div>
         </div>
 
         {routeData?.is_rerouted && (
-          <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Active Detour: Fergusson College Rd blocked. Navigation rerouted via SB Road.</span>
+          <div className="p-3 rounded-xl bg-[#fef7e0] border border-[#fbbc04] text-[#804000] text-xs flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-[#f29900] shrink-0" />
+            <span>Active Detour: FC Road blocked. Rerouted via Senapati Bapat Road.</span>
           </div>
         )}
       </div>
 
-      {/* Stop by Stop Checklist */}
+      {/* Stop Sequence Checklist */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">
-          Stop Sequence ({routeData?.stops?.length || 0} Waypoints)
+        <h3 className="text-xs font-bold text-[#5f6368] uppercase tracking-wider px-1">
+          Route Stop Checklist ({routeData?.stops?.length || 0} Stops)
         </h3>
 
         {routeData?.stops?.map((stop: any) => {
@@ -119,63 +122,63 @@ export default function DriverPortalView() {
           return (
             <div
               key={stop.id}
-              className={`p-4 rounded-xl border transition-all ${
+              className={`google-card p-5 bg-white space-y-3 transition-all ${
                 isDone
-                  ? "bg-slate-900/40 border-slate-800/80 opacity-70"
+                  ? "opacity-60 bg-[#f8fafd]"
                   : isArrived
-                  ? "bg-cyan-950/20 border-cyan-500/50 shadow-md"
+                  ? "border-[#1a73e8] ring-1 ring-[#1a73e8]/20"
                   : isReverse
-                  ? "bg-teal-950/20 border-teal-500/40"
-                  : "bg-slate-900 border-slate-800"
+                  ? "border-[#ceead6]"
+                  : ""
               }`}
             >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                     isDone
-                      ? "bg-emerald-500 text-slate-950"
+                      ? "bg-[#34a853] text-white"
                       : isReverse
-                      ? "bg-teal-500 text-slate-950"
-                      : "bg-slate-800 text-cyan-300 border border-cyan-500/30"
+                      ? "bg-[#e6f4ea] text-[#137333] border border-[#34a853]"
+                      : "bg-[#e8f0fe] text-[#1a73e8]"
                   }`}>
                     {isDone ? <CheckCircle2 className="w-4 h-4" /> : stop.sequence}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <h4 className="text-sm font-bold text-[#202124] flex items-center gap-2">
                       {isHubReturn ? "Return Depot" : isReverse ? "Reverse Return Pickup" : `Stop ${stop.sequence}`}
                       {isReverse && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 font-normal">
-                          Piggyback
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#e6f4ea] text-[#137333] font-semibold">
+                          Piggyback Return
                         </span>
                       )}
                     </h4>
-                    <p className="text-xs text-slate-400">{stop.area} • {stop.address}</p>
+                    <p className="text-xs text-[#5f6368]">{stop.area} • {stop.address}</p>
                   </div>
                 </div>
 
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                  isDone ? "bg-emerald-500/20 text-emerald-300" :
-                  isArrived ? "bg-cyan-500/20 text-cyan-300" : "bg-slate-800 text-slate-400"
+                <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
+                  isDone ? "bg-[#e6f4ea] text-[#137333]" :
+                  isArrived ? "bg-[#e8f0fe] text-[#1a73e8]" : "bg-[#f1f3f4] text-[#5f6368]"
                 }`}>
                   {stop.status.toUpperCase()}
                 </span>
               </div>
 
-              {/* Action Buttons for Driver */}
+              {/* Large Clear Action Buttons (Item 9: Arrived, Delivered, Pickup Completed, Unable to Deliver) */}
               {!isDone && !isHubReturn && (
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-800/80">
+                <div className="flex items-center gap-2 pt-2 border-t border-[#f1f3f4]">
                   <button
                     disabled={actionLoading === stop.id || isArrived}
                     onClick={() => handleUpdateStop(stop.id, "arrived")}
-                    className="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold disabled:opacity-40 transition-all"
+                    className="flex-1 py-2.5 rounded-xl bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#202124] text-xs font-semibold disabled:opacity-40 transition-all"
                   >
                     Arrived
                   </button>
                   <button
                     disabled={actionLoading === stop.id}
                     onClick={() => handleUpdateStop(stop.id, isReverse ? "pickup_completed" : "delivered")}
-                    className={`flex-1 py-1.5 rounded-lg text-white text-xs font-bold transition-all ${
-                      isReverse ? "bg-teal-600 hover:bg-teal-500" : "bg-emerald-600 hover:bg-emerald-500"
+                    className={`flex-1 py-2.5 rounded-xl text-white text-xs font-semibold shadow-xs transition-all ${
+                      isReverse ? "bg-[#34a853] hover:bg-[#188038]" : "bg-[#1a73e8] hover:bg-[#1557b0]"
                     }`}
                   >
                     {isReverse ? "Pickup Completed" : "Delivered"}
@@ -183,17 +186,17 @@ export default function DriverPortalView() {
                   <button
                     disabled={actionLoading === stop.id}
                     onClick={() => handleUpdateStop(stop.id, "failed")}
-                    className="px-2.5 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-950/40 text-xs"
+                    className="px-3.5 py-2.5 rounded-xl border border-[#f5c6cb] text-[#d93025] hover:bg-[#fce8e6] text-xs font-medium"
                     title="Unable to Deliver"
                   >
-                    ✕
+                    <XCircle className="w-4 h-4" />
                   </button>
                 </div>
               )}
 
               {isDone && (
-                <div className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1 mt-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Stop completed successfully
+                <div className="text-xs text-[#188038] font-medium flex items-center gap-1.5 pt-1">
+                  <CheckCircle2 className="w-4 h-4" /> Stop completed successfully
                 </div>
               )}
             </div>

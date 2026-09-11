@@ -9,8 +9,7 @@ import {
   Warehouse, 
   AlertTriangle, 
   Package, 
-  RefreshCw, 
-  Zap, 
+  RotateCcw, 
   Navigation,
   CheckCircle2
 } from "lucide-react";
@@ -58,9 +57,9 @@ export default function MapComponent({
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    // CartoDB Dark Matter Tiles (Smart city dark theme)
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | Pune Urban Flow',
+    // CartoDB Voyager Light Tiles (Clean Google Maps-inspired light style)
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | Pune Urban Flow Network',
       maxZoom: 19,
       subdomains: "abcd",
     }).addTo(map);
@@ -90,21 +89,23 @@ export default function MapComponent({
           
           const isRerouteActive = route.is_rerouted || route.status === "rerouted";
           const polyline = L.polyline(latLngs, {
-            color: isRerouteActive ? "#f59e0b" : "#06b6d4",
-            weight: isRerouteActive ? 4 : 3.5,
-            opacity: 0.9,
+            color: isRerouteActive ? "#ea4335" : "#1a73e8",
+            weight: isRerouteActive ? 4.5 : 3.5,
+            opacity: 0.85,
             dashArray: isRerouteActive ? "8, 6" : undefined,
           });
 
           polyline.bindPopup(`
-            <div style="font-size: 13px;">
-              <div style="font-weight: 700; color: ${isRerouteActive ? '#f59e0b' : '#06b6d4'}; margin-bottom: 4px;">
-                ${route.code} ${isRerouteActive ? '(DYNAMIC DETOUR)' : '(CONSOLIDATED ROUTE)'}
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 4px;">
+              <div style="font-weight: 700; color: ${isRerouteActive ? '#ea4335' : '#1a73e8'}; font-size: 13px; margin-bottom: 4px;">
+                ${route.code} ${isRerouteActive ? '• Detour Active' : '• Consolidated Route'}
               </div>
-              <div style="color: #94a3b8; font-size: 11px;">Status: <b style="color: #f1f5f9;">${route.status.toUpperCase()}</b></div>
-              <div style="color: #94a3b8; font-size: 11px;">Distance: <b style="color: #f1f5f9;">${route.distance_km} km</b></div>
-              <div style="color: #94a3b8; font-size: 11px;">Current ETA: <b style="color: #38bdf8;">${route.eta_min} min</b></div>
-              ${route.empty_returns_avoided > 0 ? `<div style="color: #10b981; font-size: 11px; margin-top: 4px;">✓ ${route.empty_returns_avoided} Empty Return(s) Avoided</div>` : ''}
+              <div style="color: #5f6368; font-size: 12px; line-height: 1.5;">
+                <div>Status: <b style="color: #202124;">${route.status.toUpperCase()}</b></div>
+                <div>Distance: <b style="color: #202124;">${route.distance_km} km</b></div>
+                <div>Estimated Arrival: <b style="color: #1a73e8;">${route.eta_min} min</b></div>
+                ${route.empty_returns_avoided > 0 ? `<div style="color: #34a853; font-weight: 600; margin-top: 4px;">✓ ${route.empty_returns_avoided} Empty Return Avoided</div>` : ''}
+              </div>
             </div>
           `);
           lg.addLayer(polyline);
@@ -112,29 +113,29 @@ export default function MapComponent({
       });
     }
 
-    // 2. Render Micro-Hubs
+    // 2. Render Micro-Hubs (Google Blue Pin)
     if (showHubs && mapData.hubs) {
       mapData.hubs.forEach((hub) => {
-        const utilColor = hub.utilization_pct > 80 ? "#ef4444" : hub.utilization_pct > 60 ? "#f59e0b" : "#06b6d4";
+        const utilColor = hub.utilization_pct > 80 ? "#ea4335" : hub.utilization_pct > 60 ? "#f29900" : "#1a73e8";
         const hubIcon = L.divIcon({
           className: "custom-hub-marker",
           html: `
             <div style="
               width: 38px;
               height: 38px;
-              border-radius: 10px;
-              background: #0f172a;
+              border-radius: 12px;
+              background: #ffffff;
               border: 2px solid ${utilColor};
               display: flex;
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              color: white;
-              box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
+              color: #202124;
+              box-shadow: 0 3px 10px rgba(60,64,67,0.2);
               cursor: pointer;
             ">
               <span style="font-size: 9px; font-weight: 800; color: ${utilColor};">${hub.code.replace('HUB_', 'H')}</span>
-              <span style="font-size: 8px; color: #94a3b8;">${Math.round(hub.utilization_pct)}%</span>
+              <span style="font-size: 8px; color: #5f6368; font-weight: 600;">${Math.round(hub.utilization_pct)}%</span>
             </div>
           `,
           iconSize: [38, 38],
@@ -143,13 +144,13 @@ export default function MapComponent({
 
         const marker = L.marker([hub.lat, hub.lng], { icon: hubIcon });
         marker.bindPopup(`
-          <div style="font-size: 13px; line-height: 1.4;">
-            <div style="font-weight: bold; color: #38bdf8; font-size: 14px;">${hub.name}</div>
-            <div style="color: #94a3b8; font-size: 11px; margin-bottom: 6px;">${hub.area} Urban Node</div>
-            <div style="border-top: 1px solid #334155; padding-top: 6px;">
-              <div>Capacity: <b>${hub.current_load_kg} / ${hub.max_capacity_kg} kg</b></div>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 4px;">
+            <div style="font-weight: 700; color: #1a73e8; font-size: 14px;">${hub.name}</div>
+            <div style="color: #5f6368; font-size: 11px; margin-bottom: 6px;">${hub.area} Urban Logistics Node</div>
+            <div style="border-top: 1px solid #e8eaed; padding-top: 6px; font-size: 12px; color: #3c4043; line-height: 1.5;">
+              <div>Capacity Load: <b>${hub.current_load_kg} / ${hub.max_capacity_kg} kg</b></div>
               <div>Utilization: <b style="color: ${utilColor};">${hub.utilization_pct}%</b></div>
-              <div>Status: <span style="color: #10b981; font-weight: bold;">${hub.status.toUpperCase()}</span></div>
+              <div>Operating Status: <span style="color: #34a853; font-weight: bold;">${hub.status.toUpperCase()}</span></div>
             </div>
           </div>
         `);
@@ -158,45 +159,46 @@ export default function MapComponent({
       });
     }
 
-    // 3. Render Vehicles
+    // 3. Render Vehicles (Google Green Pin)
     if (showVehicles && mapData.vehicles) {
       mapData.vehicles.forEach((veh) => {
         const isTransit = veh.status === "in_transit";
-        const vehColor = isTransit ? "#10b981" : veh.status === "loading" ? "#f59e0b" : "#64748b";
+        const vehColor = isTransit ? "#34a853" : veh.status === "loading" ? "#fbbc04" : "#5f6368";
         
         const vehIcon = L.divIcon({
-          className: `custom-veh-marker ${isTransit ? "pulse-marker-cyan" : ""}`,
+          className: `custom-veh-marker ${isTransit ? "marker-pulse-blue" : ""}`,
           html: `
             <div style="
-              width: 28px;
-              height: 28px;
+              width: 30px;
+              height: 30px;
               border-radius: 50%;
-              background: #0f172a;
+              background: #ffffff;
               border: 2px solid ${vehColor};
               display: flex;
               align-items: center;
               justify-content: center;
-              color: white;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+              color: #202124;
+              box-shadow: 0 2px 8px rgba(60,64,67,0.25);
               cursor: pointer;
             ">
-              <span style="font-size: 9px; font-weight: 700; color: ${vehColor};">
+              <span style="font-size: 11px;">
                 ${veh.type === 'motorcycle' ? '🛵' : veh.type === 'ev_cargo' ? '⚡' : '🚚'}
               </span>
             </div>
           `,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14],
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
         });
 
         const marker = L.marker([veh.lat, veh.lng], { icon: vehIcon });
         marker.bindPopup(`
-          <div style="font-size: 13px;">
-            <div style="font-weight: bold; color: #10b981; font-size: 14px;">${veh.code}</div>
-            <div style="color: #94a3b8; font-size: 11px;">Type: <b style="color: #f8fafc;">${veh.type.replace('_', ' ').toUpperCase()}</b></div>
-            <div style="color: #94a3b8; font-size: 11px;">Status: <b style="color: #38bdf8;">${veh.status.toUpperCase()}</b></div>
-            <div style="color: #94a3b8; font-size: 11px;">Current Load: <b>${veh.current_load_kg} / ${veh.max_capacity_kg} kg (${veh.utilization_pct}%)</b></div>
-            <div style="color: #94a3b8; font-size: 11px;">Battery/Fuel: <b>${veh.battery_pct}%</b></div>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 4px;">
+            <div style="font-weight: 700; color: #34a853; font-size: 13px;">${veh.code} • ${veh.type.replace('_', ' ').toUpperCase()}</div>
+            <div style="font-size: 12px; color: #5f6368; line-height: 1.5; margin-top: 4px;">
+              <div>Status: <b style="color: #202124;">${veh.status.toUpperCase()}</b></div>
+              <div>Current Load: <b style="color: #202124;">${veh.current_load_kg} / ${veh.max_capacity_kg} kg (${veh.utilization_pct}%)</b></div>
+              <div>Battery / Fuel: <b style="color: #202124;">${veh.battery_pct}%</b></div>
+            </div>
           </div>
         `);
         marker.on("click", () => onSelectVehicle && onSelectVehicle(veh));
@@ -204,81 +206,82 @@ export default function MapComponent({
       });
     }
 
-    // 4. Render Delivery Clusters
+    // 4. Render Delivery Clusters (Blue Pill Badge)
     if (showClusters && mapData.clusters) {
       mapData.clusters.forEach((cluster) => {
         const clusterIcon = L.divIcon({
           className: "custom-cluster-marker",
           html: `
             <div style="
-              padding: 3px 8px;
-              border-radius: 12px;
-              background: rgba(99, 102, 241, 0.9);
-              border: 1px solid #a5b4fc;
-              color: white;
-              font-size: 10px;
-              font-weight: bold;
+              padding: 3px 10px;
+              border-radius: 14px;
+              background: #ffffff;
+              border: 1.5px solid #1a73e8;
+              color: #1a73e8;
+              font-size: 11px;
+              font-weight: 700;
               display: flex;
               align-items: center;
               gap: 4px;
-              box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
+              box-shadow: 0 2px 8px rgba(26,115,232,0.2);
               white-space: nowrap;
             ">
               <span>📦 ${cluster.package_count} pkgs</span>
             </div>
           `,
-          iconSize: [80, 24],
-          iconAnchor: [40, 12],
+          iconSize: [85, 26],
+          iconAnchor: [42, 13],
         });
 
         const marker = L.marker([cluster.lat, cluster.lng], { icon: clusterIcon });
         marker.bindPopup(`
-          <div style="font-size: 13px;">
-            <div style="font-weight: bold; color: #818cf8;">Cluster ${cluster.code}</div>
-            <div style="color: #94a3b8; font-size: 11px;">Consolidated Deliveries: <b>${cluster.package_count} packages</b></div>
-            <div style="color: #94a3b8; font-size: 11px;">Total Weight: <b>${cluster.total_weight_kg} kg</b></div>
-            <div style="color: #94a3b8; font-size: 11px;">Status: <b style="color: #34d399;">${cluster.status.toUpperCase()}</b></div>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 4px;">
+            <div style="font-weight: 700; color: #1a73e8; font-size: 13px;">Cluster ${cluster.code}</div>
+            <div style="font-size: 12px; color: #5f6368; line-height: 1.5; margin-top: 4px;">
+              <div>Consolidated Packages: <b style="color: #202124;">${cluster.package_count} items</b></div>
+              <div>Combined Weight: <b style="color: #202124;">${cluster.total_weight_kg} kg</b></div>
+              <div>Assigned Hub: <b style="color: #1a73e8;">Hub 0${cluster.hub_id || 1}</b></div>
+            </div>
           </div>
         `);
         lg.addLayer(marker);
       });
     }
 
-    // 5. Render Traffic Incident / Blocked Road Hazards
+    // 5. Render Traffic Hazards / Blocked Road Closures (Google Red Badge)
     if (showTraffic && mapData.traffic_events) {
       mapData.traffic_events.forEach((te) => {
         const hazardIcon = L.divIcon({
-          className: "pulse-marker-red",
+          className: "marker-pulse-red",
           html: `
             <div style="
-              width: 34px;
-              height: 34px;
-              border-radius: 8px;
-              background: #7f1d1d;
-              border: 2px solid #ef4444;
+              width: 32px;
+              height: 32px;
+              border-radius: 10px;
+              background: #fce8e6;
+              border: 2px solid #ea4335;
               display: flex;
               align-items: center;
               justify-content: center;
-              color: #fecaca;
-              font-size: 16px;
-              box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+              color: #ea4335;
+              font-size: 15px;
+              box-shadow: 0 2px 8px rgba(234,67,53,0.3);
             ">
               ⛔
             </div>
           `,
-          iconSize: [34, 34],
-          iconAnchor: [17, 17],
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
         });
 
         const marker = L.marker([te.from_lat, te.from_lng], { icon: hazardIcon });
         marker.bindPopup(`
-          <div style="font-size: 13px;">
-            <div style="font-weight: bold; color: #ef4444; font-size: 14px;">ROAD CLOSURE / INCIDENT</div>
-            <div style="color: #f8fafc; font-weight: 600; margin: 3px 0;">${te.road}</div>
-            <div style="color: #94a3b8; font-size: 11px;">Area: ${te.area}</div>
-            <div style="color: #fca5a5; font-size: 11px; margin-top: 4px;">${te.description}</div>
-            <div style="margin-top: 6px; font-size: 11px; color: #f59e0b; font-weight: 600;">
-              ⚡ Dynamic Rerouting Engine Active
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 4px;">
+            <div style="font-weight: 700; color: #ea4335; font-size: 13px;">Road Incident • Closed Corridor</div>
+            <div style="font-weight: 600; color: #202124; font-size: 12px; margin: 3px 0;">${te.road} (${te.area})</div>
+            <div style="color: #5f6368; font-size: 11px;">${te.description}</div>
+            <div style="margin-top: 4px; font-size: 11px; color: #1a73e8; font-weight: 600;">
+              ✓ Dynamic Rerouting Detour Active
             </div>
           </div>
         `);
@@ -286,60 +289,62 @@ export default function MapComponent({
       });
     }
 
-    // 6. Render Sample Delivery Destination points
+    // 6. Render Sample Delivery Destination points (Yellow / Green subtle dots)
     if (showDestinations && mapData.destinations) {
       mapData.destinations.forEach((dest) => {
         const circle = L.circleMarker([dest.lat, dest.lng], {
-          radius: 4,
-          fillColor: dest.status === "DELIVERED" ? "#10b981" : "#f59e0b",
-          color: "#0f172a",
-          weight: 1,
-          opacity: 0.8,
-          fillOpacity: 0.7,
+          radius: 4.5,
+          fillColor: dest.status === "DELIVERED" ? "#34a853" : "#fbbc04",
+          color: "#ffffff",
+          weight: 1.5,
+          opacity: 1,
+          fillOpacity: 0.9,
         });
         circle.bindPopup(`
-          <div style="font-size: 12px;">
-            <div style="font-weight: bold; color: #f59e0b;">Destination: ${dest.area}</div>
-            <div style="color: #94a3b8;">Code: ${dest.tracking_code}</div>
-            <div style="color: #94a3b8;">Weight: ${dest.weight} kg</div>
-            <div style="color: #38bdf8;">Status: ${dest.status}</div>
+          <div style="font-size: 11px; font-family: sans-serif;">
+            <b>${dest.area}</b><br/>
+            Code: ${dest.tracking_code}<br/>
+            Weight: ${dest.weight} kg<br/>
+            Status: ${dest.status}
           </div>
         `);
         lg.addLayer(circle);
       });
     }
 
-    // 7. Render Reverse Logistics Pickups
+    // 7. Render Reverse Logistics Pickups (Green Pill)
     if (showReverse && mapData.reverse_pickups) {
       mapData.reverse_pickups.forEach((rp) => {
         const revIcon = L.divIcon({
           className: "custom-reverse-marker",
           html: `
             <div style="
-              width: 22px;
-              height: 22px;
+              width: 24px;
+              height: 24px;
               border-radius: 50%;
-              background: #047857;
-              border: 1.5px solid #34d399;
+              background: #e6f4ea;
+              border: 1.5px solid #34a853;
               display: flex;
               align-items: center;
               justify-content: center;
-              color: white;
-              font-size: 10px;
+              color: #137333;
+              font-size: 11px;
+              font-weight: bold;
+              box-shadow: 0 1px 4px rgba(52,168,83,0.3);
             ">
-              🔄
+              ↺
             </div>
           `,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
         });
         const marker = L.marker([rp.lat, rp.lng], { icon: revIcon });
         marker.bindPopup(`
-          <div style="font-size: 12px;">
-            <div style="font-weight: bold; color: #10b981;">Reverse Pickup Point</div>
-            <div>Item: ${rp.item}</div>
-            <div>Customer: ${rp.customer} (${rp.area})</div>
-            <div style="color: #34d399; font-weight: 600;">Vehicle: ${rp.vehicle_code || 'Matched'}</div>
+          <div style="font-size: 11px; font-family: sans-serif;">
+            <b style="color: #188038;">Reverse Pickup Location</b><br/>
+            Item: ${rp.item}<br/>
+            Customer: ${rp.customer} (${rp.area})<br/>
+            Vehicle: <b>${rp.vehicle_code || 'Matched'}</b>
           </div>
         `);
         lg.addLayer(marker);
@@ -357,16 +362,16 @@ export default function MapComponent({
   ]);
 
   return (
-    <div className="relative w-full h-full min-h-[500px] rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950">
+    <div className="relative w-full h-full min-h-[500px] rounded-2xl overflow-hidden border border-[#e8eaed] shadow-xs bg-white">
       {/* Map Container */}
       <div ref={mapContainerRef} className="w-full h-full min-h-[500px]" />
 
-      {/* Top Left: Map Layers Filter Bar */}
-      <div className="absolute top-4 left-4 z-[1000] flex flex-wrap gap-2 bg-slate-900/90 backdrop-blur-md p-2 rounded-lg border border-slate-700/70 shadow-lg text-xs">
+      {/* Top Left: Clean Google Maps-Style Filter Bar */}
+      <div className="absolute top-4 left-4 z-[1000] flex flex-wrap gap-1.5 bg-white/95 backdrop-blur-md p-1.5 rounded-xl border border-[#dadce0] shadow-md text-xs">
         <button
           onClick={() => setShowHubs(!showHubs)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-            showHubs ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40" : "text-slate-400 hover:bg-slate-800"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            showHubs ? "bg-[#e8f0fe] text-[#1a73e8] font-semibold" : "text-[#5f6368] hover:bg-[#f1f3f4]"
           }`}
         >
           <Warehouse className="w-3.5 h-3.5" />
@@ -374,8 +379,8 @@ export default function MapComponent({
         </button>
         <button
           onClick={() => setShowVehicles(!showVehicles)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-            showVehicles ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "text-slate-400 hover:bg-slate-800"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            showVehicles ? "bg-[#e6f4ea] text-[#188038] font-semibold" : "text-[#5f6368] hover:bg-[#f1f3f4]"
           }`}
         >
           <Truck className="w-3.5 h-3.5" />
@@ -383,8 +388,8 @@ export default function MapComponent({
         </button>
         <button
           onClick={() => setShowRoutes(!showRoutes)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-            showRoutes ? "bg-sky-500/20 text-sky-300 border border-sky-500/40" : "text-slate-400 hover:bg-slate-800"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            showRoutes ? "bg-[#e8f0fe] text-[#1a73e8] font-semibold" : "text-[#5f6368] hover:bg-[#f1f3f4]"
           }`}
         >
           <Navigation className="w-3.5 h-3.5" />
@@ -392,8 +397,8 @@ export default function MapComponent({
         </button>
         <button
           onClick={() => setShowClusters(!showClusters)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-            showClusters ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" : "text-slate-400 hover:bg-slate-800"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            showClusters ? "bg-[#e8f0fe] text-[#1a73e8] font-semibold" : "text-[#5f6368] hover:bg-[#f1f3f4]"
           }`}
         >
           <Package className="w-3.5 h-3.5" />
@@ -401,63 +406,63 @@ export default function MapComponent({
         </button>
         <button
           onClick={() => setShowTraffic(!showTraffic)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-            showTraffic ? "bg-rose-500/20 text-rose-300 border border-rose-500/40" : "text-slate-400 hover:bg-slate-800"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            showTraffic ? "bg-[#fce8e6] text-[#c5221f] font-semibold" : "text-[#5f6368] hover:bg-[#f1f3f4]"
           }`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
-          Traffic Incidents
+          Incidents
         </button>
         <button
           onClick={() => setShowReverse(!showReverse)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all ${
-            showReverse ? "bg-teal-500/20 text-teal-300 border border-teal-500/40" : "text-slate-400 hover:bg-slate-800"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            showReverse ? "bg-[#e6f4ea] text-[#137333] font-semibold" : "text-[#5f6368] hover:bg-[#f1f3f4]"
           }`}
         >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Reverse Pickups
+          <RotateCcw className="w-3.5 h-3.5" />
+          Reverse
         </button>
       </div>
 
-      {/* Top Right: Demonstration Controls (Section 13) */}
+      {/* Top Right: Demonstration Controls */}
       <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
         {!isRerouted ? (
           <button
             onClick={onSimulateReroute}
-            className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg shadow-xl border border-amber-400/40 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-2 bg-white hover:bg-[#fce8e6] text-[#d93025] border border-[#f5c6cb] font-medium text-xs px-3.5 py-2 rounded-xl shadow-md transition-all hover:scale-[1.02]"
             title="Demonstrate dynamic rerouting when road closure occurs on FC Road"
           >
-            <AlertTriangle className="w-4 h-4 animate-bounce" />
+            <AlertTriangle className="w-4 h-4 text-[#ea4335]" />
             Simulate Road Closure
           </button>
         ) : (
           <button
             onClick={onClearClosure}
-            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg shadow-xl border border-emerald-400/40 transition-all"
+            className="flex items-center gap-2 bg-[#e6f4ea] hover:bg-[#ceead6] text-[#137333] border border-[#a8dab5] font-semibold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all"
             title="Clear active incident and restore normal transit corridor"
           >
-            <CheckCircle2 className="w-4 h-4" />
-            Clear Road Incident
+            <CheckCircle2 className="w-4 h-4 text-[#188038]" />
+            Clear Incident (Restore Route)
           </button>
         )}
       </div>
 
-      {/* Bottom Left: Quick Legend */}
-      <div className="absolute bottom-4 left-4 z-[1000] bg-slate-900/90 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-700/60 shadow-md text-[11px] text-slate-300 flex items-center gap-4">
+      {/* Bottom Left: Clean Legend */}
+      <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-[#dadce0] shadow-sm text-xs text-[#5f6368] flex items-center gap-4">
         <span className="flex items-center gap-1.5 font-medium">
-          <span className="w-2.5 h-2.5 rounded bg-cyan-400 inline-block"></span> Hubs
+          <span className="w-2.5 h-2.5 rounded bg-[#1a73e8] inline-block"></span> Micro-Hubs
         </span>
         <span className="flex items-center gap-1.5 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> Fleet
+          <span className="w-2.5 h-2.5 rounded-full bg-[#34a853] inline-block"></span> Active Fleet
         </span>
         <span className="flex items-center gap-1.5 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 inline-block"></span> Clusters
+          <span className="w-2.5 h-2.5 rounded bg-[#1a73e8] border border-[#1a73e8] inline-block"></span> Clusters
         </span>
         <span className="flex items-center gap-1.5 font-medium">
-          <span className="w-2.5 h-2.5 rounded bg-amber-400 inline-block"></span> Drop-offs
+          <span className="w-2.5 h-2.5 rounded-full bg-[#fbbc04] inline-block"></span> Drop-offs
         </span>
         <span className="flex items-center gap-1.5 font-medium">
-          <span className="w-2.5 h-2.5 rounded bg-red-500 inline-block"></span> Hazard
+          <span className="w-2.5 h-2.5 rounded bg-[#ea4335] inline-block"></span> Closure
         </span>
       </div>
     </div>

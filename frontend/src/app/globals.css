@@ -2,78 +2,94 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #080d1a;
-  --foreground: #f1f5f9;
+  --background: #f8fafd;
+  --foreground: #202124;
+  --google-blue: #1a73e8;
+  --google-blue-hover: #1557b0;
+  --google-green: #34a853;
+  --google-yellow: #fbbc04;
+  --google-red: #ea4335;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --muted-text: #5f6368;
 }
 
 body {
-  background-color: #080d1a;
-  color: #f1f5f9;
+  background-color: #f8fafd;
+  color: #202124;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
 }
 
-/* Custom dark scrollbar */
+/* Custom clean Google-style scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b1329;
+  background: #f1f3f4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #dadce0;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #bdc1c6;
 }
 
-/* Leaflet dark theme adjustments */
+/* Leaflet Google Maps-inspired light style */
 .leaflet-container {
-  background: #0a0f1d !important;
+  background: #e5e3df !important;
   font-family: inherit;
 }
 .leaflet-popup-content-wrapper {
-  background: #0f172a !important;
-  color: #f8fafc !important;
-  border: 1px solid #334155 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7) !important;
+  background: #ffffff !important;
+  color: #202124 !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(60, 64, 67, 0.15) !important;
+  padding: 2px !important;
 }
 .leaflet-popup-tip {
-  background: #0f172a !important;
+  background: #ffffff !important;
 }
 
-/* Pulse keyframes for active fleet & bottlenecks */
-@keyframes pulse-cyan {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.6); }
-  50% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
+/* Clean Google-style card utilities */
+.google-card {
+  background: #ffffff;
+  border: 1px solid #e8eaed;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.05), 0 1px 3px 1px rgba(60, 64, 67, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.google-card:hover {
+  border-color: #d2d6dc;
+  box-shadow: 0 2px 6px 0 rgba(60, 64, 67, 0.08), 0 2px 8px 2px rgba(60, 64, 67, 0.04);
+}
+
+.google-card-active {
+  background: #ffffff;
+  border: 1px solid #1a73e8;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(26, 115, 232, 0.15), 0 2px 8px 1px rgba(26, 115, 232, 0.08);
+}
+
+/* Subtle status pulses */
+@keyframes pulse-blue {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(26, 115, 232, 0); }
 }
 
 @keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-  50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(234, 67, 53, 0); }
 }
 
-.pulse-marker-cyan {
-  animation: pulse-cyan 2s infinite;
+.marker-pulse-blue {
+  animation: pulse-blue 2s infinite;
 }
 
-.pulse-marker-red {
+.marker-pulse-red {
   animation: pulse-red 1.5s infinite;
-}
-
-/* Glassmorphic card styling */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
-}
-
-.glass-panel-glow {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  box-shadow: 0 4px 20px -2px rgba(6, 182, 212, 0.15);
 }

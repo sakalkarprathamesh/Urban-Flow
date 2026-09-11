@@ -1,20 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
-  title: "Urban Flow — Intelligent Urban Logistics Coordination Platform",
-  description: "A shared digital coordination layer for urban goods movement. Consolidating deliveries, optimizing micro-hubs, dynamic rerouting, and reverse logistics across Pune, India.",
+  title: "Urban Flow — Intelligent Urban Logistics Platform",
+  description: "A shared digital coordination layer for urban goods movement. The official Urban Flow web platform coordinating deliveries, micro-hubs, dynamic routing, and reverse logistics in Pune, India.",
 };
 
 export default function RootLayout({
@@ -23,11 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
-    >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">{children}</body>
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-[#f8fafd] text-[#202124] font-sans antialiased">
+        {children}
+      </body>
     </html>
   );
 }

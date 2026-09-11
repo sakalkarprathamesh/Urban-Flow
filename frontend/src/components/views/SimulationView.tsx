@@ -6,17 +6,11 @@ import { fetchApi } from "@/lib/api";
 import { 
   Sliders, 
   Play, 
-  TrendingDown, 
-  TrendingUp, 
-  CheckCircle2, 
-  Truck, 
-  Compass, 
-  RotateCcw, 
-  Zap, 
+  BarChart3, 
   Clock, 
-  Leaf,
-  BarChart3,
-  RefreshCw
+  TrendingDown, 
+  RefreshCw,
+  Info
 } from "lucide-react";
 import { 
   BarChart, 
@@ -32,7 +26,7 @@ import {
 } from "recharts";
 
 export default function SimulationView() {
-  // Input parameters
+  // Input parameters (Item 16)
   const [packages, setPackages] = useState(1000);
   const [vehicles, setVehicles] = useState(50);
   const [hubs, setHubs] = useState(5);
@@ -63,12 +57,10 @@ export default function SimulationView() {
     }
   };
 
-  // Run initial simulation on load if none exists
   useState(() => {
     handleRunSimulation();
   });
 
-  // Prepare chart comparison data
   const comparisonBarData = result ? [
     {
       metric: "Vehicle Trips",
@@ -76,7 +68,7 @@ export default function SimulationView() {
       UrbanFlow: result.urban_flow.trips,
     },
     {
-      metric: "Total Km (x10)",
+      metric: "Total Km (÷10)",
       Conventional: Math.round(result.conventional.total_distance_km / 10),
       UrbanFlow: Math.round(result.urban_flow.total_distance_km / 10),
     },
@@ -98,39 +90,45 @@ export default function SimulationView() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <Sliders className="w-5 h-5 text-amber-400" />
-            Urban Logistics Simulation Center
+          <h1 className="text-xl font-bold text-[#202124] flex items-center gap-2">
+            <Sliders className="w-5 h-5 text-[#1a73e8]" />
+            Logistics Network Simulation Center
           </h1>
-          <p className="text-xs text-slate-400">
-            Comparative evaluation of Conventional Dispersed Delivery vs Urban Flow Consolidated Coordination
+          <p className="text-xs text-[#5f6368]">
+            Comparative modeling: Conventional uncoordinated point-to-point dispatch vs Urban Flow shared coordination
           </p>
         </div>
 
         <button
           onClick={handleRunSimulation}
           disabled={loading}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white text-xs font-bold shadow-xl shadow-amber-500/20 transition-all transform hover:scale-[1.02] disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold shadow-xs transition-all disabled:opacity-50"
         >
           {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-white" />}
-          RUN SIMULATION
+          <span>Run Simulation</span>
         </button>
       </div>
 
-      {/* Control Sliders Panel */}
-      <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-        <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-cyan-400" />
-          Simulation Control Parameters
-        </h2>
+      {/* Control Panel (Item 16) */}
+      <div className="google-card p-6 bg-white space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-bold text-[#202124] uppercase tracking-wider flex items-center gap-2">
+            <Sliders className="w-4 h-4 text-[#1a73e8]" />
+            Simulation Control Parameters
+          </h2>
+          <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#f1f3f4] text-[#5f6368] font-medium flex items-center gap-1">
+            <Info className="w-3 h-3" />
+            Simulation / Model Estimate
+          </span>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 text-xs">
           
-          {/* Packages Slider */}
+          {/* Packages */}
           <div className="space-y-2">
-            <div className="flex justify-between text-slate-300">
-              <span>Packages Ingest:</span>
-              <span className="font-mono font-bold text-cyan-400">{packages.toLocaleString()}</span>
+            <div className="flex justify-between text-[#3c4043]">
+              <span className="font-medium">Packages Ingest:</span>
+              <span className="font-mono font-bold text-[#1a73e8]">{packages.toLocaleString()}</span>
             </div>
             <input
               type="range"
@@ -139,19 +137,19 @@ export default function SimulationView() {
               step="50"
               value={packages}
               onChange={(e) => setPackages(Number(e.target.value))}
-              className="w-full accent-cyan-500 cursor-pointer"
+              className="w-full accent-[#1a73e8] cursor-pointer"
             />
-            <div className="flex justify-between text-[10px] text-slate-500">
+            <div className="flex justify-between text-[10px] text-[#80868b]">
               <span>200</span>
-              <span>2,500</span>
+              <span>2,500 pkgs</span>
             </div>
           </div>
 
-          {/* Vehicles Slider */}
+          {/* Vehicles */}
           <div className="space-y-2">
-            <div className="flex justify-between text-slate-300">
-              <span>Vehicle Fleet:</span>
-              <span className="font-mono font-bold text-emerald-400">{vehicles}</span>
+            <div className="flex justify-between text-[#3c4043]">
+              <span className="font-medium">Fleet Size:</span>
+              <span className="font-mono font-bold text-[#188038]">{vehicles} units</span>
             </div>
             <input
               type="range"
@@ -160,19 +158,19 @@ export default function SimulationView() {
               step="5"
               value={vehicles}
               onChange={(e) => setVehicles(Number(e.target.value))}
-              className="w-full accent-emerald-500 cursor-pointer"
+              className="w-full accent-[#34a853] cursor-pointer"
             />
-            <div className="flex justify-between text-[10px] text-slate-500">
+            <div className="flex justify-between text-[10px] text-[#80868b]">
               <span>10</span>
-              <span>100</span>
+              <span>100 vehicles</span>
             </div>
           </div>
 
-          {/* Micro-Hubs Slider */}
+          {/* Micro-Hubs */}
           <div className="space-y-2">
-            <div className="flex justify-between text-slate-300">
-              <span>Micro-Hubs:</span>
-              <span className="font-mono font-bold text-indigo-400">{hubs}</span>
+            <div className="flex justify-between text-[#3c4043]">
+              <span className="font-medium">Active Micro-Hubs:</span>
+              <span className="font-mono font-bold text-[#1a73e8]">{hubs} hubs</span>
             </div>
             <input
               type="range"
@@ -181,38 +179,38 @@ export default function SimulationView() {
               step="1"
               value={hubs}
               onChange={(e) => setHubs(Number(e.target.value))}
-              className="w-full accent-indigo-500 cursor-pointer"
+              className="w-full accent-[#1a73e8] cursor-pointer"
             />
-            <div className="flex justify-between text-[10px] text-slate-500">
+            <div className="flex justify-between text-[10px] text-[#80868b]">
               <span>3 hubs</span>
               <span>10 hubs</span>
             </div>
           </div>
 
-          {/* Traffic Congestion Select */}
-          <div className="space-y-2">
-            <label className="block text-slate-300">Pune Traffic Condition:</label>
+          {/* Traffic Level */}
+          <div className="space-y-1.5">
+            <label className="block text-[#3c4043] font-medium">Pune Traffic Level:</label>
             <select
               value={traffic}
               onChange={(e) => setTraffic(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 outline-none focus:border-amber-500"
+              className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-xl p-2 text-xs text-[#202124] outline-none focus:border-[#1a73e8]"
             >
               <option value="Low">Low (Off-Peak)</option>
               <option value="Normal">Normal (Midday)</option>
               <option value="Heavy">Heavy (Peak Hours)</option>
-              <option value="Gridlock">Gridlock (Monsoon / Roadwork)</option>
+              <option value="Gridlock">Gridlock (Monsoon)</option>
             </select>
           </div>
 
-          {/* Demand Multiplier */}
-          <div className="space-y-2">
-            <label className="block text-slate-300">Demand Stress Test:</label>
+          {/* Demand Surge */}
+          <div className="space-y-1.5">
+            <label className="block text-[#3c4043] font-medium">Demand Increase:</label>
             <select
               value={demandMultiplier}
               onChange={(e) => setDemandMultiplier(Number(e.target.value))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 outline-none focus:border-rose-500"
+              className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-xl p-2 text-xs text-[#202124] outline-none focus:border-[#1a73e8]"
             >
-              <option value={1.0}>Baseline Demand (1.0x)</option>
+              <option value={1.0}>Baseline (1.0x)</option>
               <option value={1.3}>Festival Surge (+30%)</option>
               <option value={1.6}>E-Commerce Mega Sale (+60%)</option>
             </select>
@@ -221,110 +219,110 @@ export default function SimulationView() {
         </div>
       </div>
 
-      {/* Before vs After Side-by-Side Comparison (Section 19) */}
+      {/* Side-by-Side Comparison (Item 16: Conventional vs Urban Flow) */}
       {result && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Conventional Model Card */}
-            <div className="glass-panel p-6 rounded-2xl border border-red-500/30 bg-red-950/10 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-red-500/20">
+            <div className="google-card p-6 bg-white border-[#f5c6cb] space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#f1f3f4]">
                 <div>
-                  <h3 className="text-base font-bold text-red-400">Conventional Logistics Model</h3>
-                  <p className="text-xs text-slate-400">Direct point-to-point uncoordinated delivery</p>
+                  <h3 className="text-base font-bold text-[#d93025]">CONVENTIONAL MODEL</h3>
+                  <p className="text-xs text-[#5f6368]">Uncoordinated point-to-point deliveries</p>
                 </div>
-                <span className="text-xs px-2.5 py-1 rounded bg-red-500/20 text-red-300 font-bold">
+                <span className="text-xs px-2.5 py-1 rounded-full bg-[#fce8e6] text-[#c5221f] font-semibold">
                   Siloed Dispersed
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Vehicle Trips:</div>
-                  <div className="text-xl font-black text-white">{result.conventional.trips.toLocaleString()}</div>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+                  <div className="text-[#5f6368]">Vehicle Trips:</div>
+                  <div className="text-xl font-bold text-[#202124]">{result.conventional.trips.toLocaleString()}</div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Total Distance:</div>
-                  <div className="text-xl font-black text-white">{result.conventional.total_distance_km.toLocaleString()} km</div>
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+                  <div className="text-[#5f6368]">Total Distance:</div>
+                  <div className="text-xl font-bold text-[#202124]">{result.conventional.total_distance_km.toLocaleString()} km</div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Average Utilization:</div>
-                  <div className="text-xl font-black text-red-400">{result.conventional.avg_utilization_pct}%</div>
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+                  <div className="text-[#5f6368]">Average Utilization:</div>
+                  <div className="text-xl font-bold text-[#d93025]">{result.conventional.avg_utilization_pct}%</div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Empty Return Trips:</div>
-                  <div className="text-xl font-black text-red-400">{result.conventional.empty_returns}</div>
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+                  <div className="text-[#5f6368]">Empty Returns:</div>
+                  <div className="text-xl font-bold text-[#d93025]">{result.conventional.empty_returns}</div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Avg Delivery Time:</div>
-                  <div className="text-xl font-black text-white">{result.conventional.avg_delivery_time_min} min</div>
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+                  <div className="text-[#5f6368]">Avg Delivery Time:</div>
+                  <div className="text-xl font-bold text-[#202124]">{result.conventional.avg_delivery_time_min} min</div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">CO2 Emissions:</div>
-                  <div className="text-xl font-black text-slate-300">{result.conventional.co2_emissions_kg} kg</div>
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+                  <div className="text-[#5f6368]">Packages Consolidated:</div>
+                  <div className="text-xl font-bold text-[#5f6368]">{result.conventional.packages_consolidated} pkgs</div>
                 </div>
               </div>
             </div>
 
             {/* Urban Flow Model Card */}
-            <div className="glass-panel p-6 rounded-2xl border border-emerald-500/40 bg-emerald-950/10 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-emerald-500/20">
+            <div className="google-card p-6 bg-white border-[#ceead6] space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#f1f3f4]">
                 <div>
-                  <h3 className="text-base font-bold text-emerald-400">Urban Flow Coordination Model</h3>
-                  <p className="text-xs text-slate-400">Clustered micro-hubs + reverse logistics</p>
+                  <h3 className="text-base font-bold text-[#188038]">URBAN FLOW MODEL</h3>
+                  <p className="text-xs text-[#5f6368]">Clustered micro-hubs + reverse logistics</p>
                 </div>
-                <span className="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold">
+                <span className="text-xs px-2.5 py-1 rounded-full bg-[#e6f4ea] text-[#137333] font-semibold">
                   Shared Layer
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Vehicle Trips:</div>
-                  <div className="text-xl font-black text-emerald-400">
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#ceead6]">
+                  <div className="text-[#5f6368]">Vehicle Trips:</div>
+                  <div className="text-xl font-bold text-[#188038]">
                     {result.urban_flow.trips.toLocaleString()}
-                    <span className="text-xs font-normal text-emerald-300 ml-1.5">
+                    <span className="text-xs font-normal text-[#188038] ml-1.5">
                       (-{result.deltas.trips_avoided})
                     </span>
                   </div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Total Distance:</div>
-                  <div className="text-xl font-black text-emerald-400">
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#ceead6]">
+                  <div className="text-[#5f6368]">Total Distance:</div>
+                  <div className="text-xl font-bold text-[#188038]">
                     {result.urban_flow.total_distance_km.toLocaleString()} km
-                    <span className="text-xs font-normal text-emerald-300 ml-1.5">
+                    <span className="text-xs font-normal text-[#188038] ml-1.5">
                       (-{result.deltas.distance_saved_pct}%)
                     </span>
                   </div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Average Utilization:</div>
-                  <div className="text-xl font-black text-emerald-400">
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#ceead6]">
+                  <div className="text-[#5f6368]">Average Utilization:</div>
+                  <div className="text-xl font-bold text-[#188038]">
                     {result.urban_flow.avg_utilization_pct}%
-                    <span className="text-xs font-normal text-emerald-300 ml-1.5">
+                    <span className="text-xs font-normal text-[#188038] ml-1.5">
                       (+{result.deltas.utilization_gain_pct}%)
                     </span>
                   </div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Empty Return Trips:</div>
-                  <div className="text-xl font-black text-emerald-400">
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#ceead6]">
+                  <div className="text-[#5f6368]">Empty Returns:</div>
+                  <div className="text-xl font-bold text-[#188038]">
                     {result.urban_flow.empty_returns}
-                    <span className="text-xs font-normal text-emerald-300 ml-1.5">
+                    <span className="text-xs font-normal text-[#188038] ml-1.5">
                       (-{result.deltas.empty_returns_avoided})
                     </span>
                   </div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">Avg Delivery Time:</div>
-                  <div className="text-xl font-black text-emerald-400">
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#ceead6]">
+                  <div className="text-[#5f6368]">Avg Delivery Time:</div>
+                  <div className="text-xl font-bold text-[#188038]">
                     {result.urban_flow.avg_delivery_time_min} min
                   </div>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <div className="text-slate-400">CO2 Emissions Saved:</div>
-                  <div className="text-xl font-black text-emerald-300">
-                    {result.deltas.co2_saved_kg} kg avoided
+                <div className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#ceead6]">
+                  <div className="text-[#5f6368]">Packages Consolidated:</div>
+                  <div className="text-xl font-bold text-[#188038]">
+                    {result.urban_flow.packages_consolidated} pkgs
                   </div>
                 </div>
               </div>
@@ -332,49 +330,49 @@ export default function SimulationView() {
 
           </div>
 
-          {/* Charts: Recharts Comparison BarChart and Hourly Distribution */}
+          {/* Charts: Recharts Bar Chart & 24-Hour Area Chart in Google Colors */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
             {/* Comparative Bar Chart */}
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-cyan-400" />
-                Conventional vs Urban Flow Core Metrics
+            <div className="google-card p-5 bg-white space-y-3">
+              <h4 className="text-xs font-bold text-[#202124] uppercase tracking-wider flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-[#1a73e8]" />
+                Key Metric Comparison (Model Estimate)
               </h4>
               <div className="h-64 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={comparisonBarData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                    <XAxis dataKey="metric" stroke="#94a3b8" fontSize={11} />
-                    <YAxis stroke="#94a3b8" fontSize={11} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f3f4" />
+                    <XAxis dataKey="metric" stroke="#80868b" fontSize={11} />
+                    <YAxis stroke="#80868b" fontSize={11} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: "#0f172a", borderColor: "#334155", borderRadius: "8px", fontSize: "12px" }}
+                      contentStyle={{ backgroundColor: "#ffffff", borderColor: "#dadce0", borderRadius: "12px", fontSize: "12px" }}
                     />
                     <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "8px" }} />
-                    <Bar dataKey="Conventional" fill="#f43f5e" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="UrbanFlow" fill="#06b6d4" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Conventional" fill="#ea4335" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="UrbanFlow" fill="#1a73e8" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* 24-Hour Trips Distribution Area Chart */}
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                <Clock className="w-4 h-4 text-emerald-400" />
-                24-Hour Road Load Comparison (Vehicle Trips on Pune Roads)
+            {/* Hourly Trips Area Chart */}
+            <div className="google-card p-5 bg-white space-y-3">
+              <h4 className="text-xs font-bold text-[#202124] uppercase tracking-wider flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[#34a853]" />
+                24-Hour Road Load Comparison (Pune City Roads)
               </h4>
               <div className="h-64 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={result.hourly_distribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                    <XAxis dataKey="hour" stroke="#94a3b8" fontSize={10} interval={3} />
-                    <YAxis stroke="#94a3b8" fontSize={11} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f3f4" />
+                    <XAxis dataKey="hour" stroke="#80868b" fontSize={10} interval={3} />
+                    <YAxis stroke="#80868b" fontSize={11} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: "#0f172a", borderColor: "#334155", borderRadius: "8px", fontSize: "12px" }}
+                      contentStyle={{ backgroundColor: "#ffffff", borderColor: "#dadce0", borderRadius: "12px", fontSize: "12px" }}
                     />
-                    <Area type="monotone" dataKey="conventional_trips" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.2} name="Conventional Trips" />
-                    <Area type="monotone" dataKey="urban_flow_trips" stroke="#10b981" fill="#10b981" fillOpacity={0.3} name="Urban Flow Trips" />
+                    <Area type="monotone" dataKey="conventional_trips" stroke="#ea4335" fill="#ea4335" fillOpacity={0.15} name="Conventional Trips" />
+                    <Area type="monotone" dataKey="urban_flow_trips" stroke="#34a853" fill="#34a853" fillOpacity={0.25} name="Urban Flow Trips" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -382,17 +380,17 @@ export default function SimulationView() {
 
           </div>
 
-          {/* Neighborhood Breakdown Table */}
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
-              Simulated Savings by Pune Urban Corridor
+          {/* Neighborhood Breakdown */}
+          <div className="google-card p-5 bg-white">
+            <h4 className="text-xs font-bold text-[#202124] uppercase tracking-wider mb-3">
+              Simulated Savings by Pune Neighborhood Corridor
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
               {result.neighborhood_breakdown.map((n, i) => (
-                <div key={i} className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
-                  <div className="font-bold text-white mb-1">{n.name}</div>
-                  <div className="text-[11px] text-slate-400">{n.packages} deliveries</div>
-                  <div className="text-[11px] text-emerald-400 font-bold mt-1">
+                <div key={i} className="p-3 rounded-xl bg-[#f8fafd] border border-[#e8eaed]">
+                  <div className="font-bold text-[#202124] mb-1">{n.name}</div>
+                  <div className="text-[11px] text-[#5f6368]">{n.packages} deliveries</div>
+                  <div className="text-[11px] text-[#188038] font-bold mt-1">
                     -{n.saved_km} km saved
                   </div>
                 </div>
