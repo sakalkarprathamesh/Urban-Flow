@@ -23,11 +23,16 @@ export interface MicroHub {
   area: string;
   lat: number;
   lng: number;
+  latitude?: number;
+  longitude?: number;
   max_capacity_kg: number;
   current_load_kg: number;
+  capacity?: number;
+  current_load?: number;
   utilization_pct: number;
   status: string;
   operating_hours?: string;
+  location_name?: string;
 }
 
 export interface Vehicle {
@@ -36,47 +41,68 @@ export interface Vehicle {
   type: string;
   lat: number;
   lng: number;
+  latitude?: number;
+  longitude?: number;
   status: string;
   current_load_kg: number;
   max_capacity_kg: number;
   utilization_pct: number;
   battery_pct: number;
   route_id?: number | null;
+  is_electric?: boolean;
+}
+
+export interface RouteStop {
+  id: number;
+  sequence_order: number;
+  address: string;
+  is_completed: boolean;
 }
 
 export interface RouteData {
   id: number;
   code: string;
   vehicle_id?: number | null;
+  hub_id?: number | null;
   status: string;
   distance_km: number;
+  total_distance_km?: number;
   eta_min: number;
+  total_duration_min?: number;
   is_rerouted: boolean;
   original_eta: number;
   rerouted_eta: number;
   empty_returns_avoided: number;
   polyline: [number, number][];
+  stops?: RouteStop[];
 }
 
 export interface DeliveryCluster {
   id: number;
-  code: string;
+  code?: string;
+  cluster_code?: string;
   lat: number;
   lng: number;
+  latitude?: number;
+  longitude?: number;
   package_count: number;
   total_weight_kg: number;
   hub_id?: number | null;
+  assigned_hub_id?: number | null;
   status: string;
 }
 
 export interface TrafficEvent {
   id: number;
-  road: string;
+  road?: string;
+  road_name?: string;
   area: string;
-  from_lat: number;
-  from_lng: number;
-  to_lat: number;
-  to_lng: number;
+  from_lat?: number;
+  from_lng?: number;
+  to_lat?: number;
+  to_lng?: number;
+  latitude?: number;
+  longitude?: number;
   severity: string;
   description: string;
 }
@@ -84,6 +110,7 @@ export interface TrafficEvent {
 export interface PackageItem {
   id: number;
   tracking_code: string;
+  tracking_number?: string;
   sender_name: string;
   recipient_name: string;
   pickup_lat: number;
@@ -93,25 +120,33 @@ export interface PackageItem {
   dest_area: string;
   dest_address: string;
   weight_kg: number;
+  size_category?: string;
   priority: string;
   deadline: string;
   status: string;
   cluster_id?: number | null;
   assigned_hub_id?: number | null;
+  assigned_vehicle_id?: number | null;
   is_reverse_eligible: boolean;
+  estimated_delivery_time?: string;
 }
 
 export interface ReversePickupItem {
   id: number;
-  customer: string;
-  area: string;
-  lat: number;
-  lng: number;
-  item: string;
+  customer?: string;
+  tracking_number?: string;
+  area?: string;
+  pickup_area?: string;
+  pickup_address?: string;
+  lat?: number;
+  lng?: number;
+  item?: string;
   status: string;
   vehicle_code?: string;
   matched_route?: string;
   weight_kg?: number;
+  assigned_hub_id?: number | null;
+  assigned_vehicle_id?: number | null;
 }
 
 export interface MapDataResponse {

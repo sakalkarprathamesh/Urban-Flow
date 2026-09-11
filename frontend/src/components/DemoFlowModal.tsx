@@ -58,10 +58,10 @@ export default function DemoFlowModal({
       }
     },
     {
-      title: "3. Optimize & Consolidate Network",
-      subtitle: "Multi-Source Clustering & Micro-Hub Allocation",
-      script: "“When we click Optimize Network, Urban Flow clusters compatible shipments by geographical proximity and assigns them to the optimal micro-hub.”",
-      actionText: "Execute Network Optimization",
+      title: "3. Cluster Consolidation Engine",
+      subtitle: "Group Deliveries & Assign to Micro-Hubs",
+      script: "“Watch what happens when Urban Flow's clustering engine analyzes destination clusters. Packages are grouped and routed to the nearest micro-hub facility, replacing dozens of isolated direct trips with organized consolidated runs.”",
+      actionText: "Trigger Cluster Optimization",
       icon: Sparkles,
       action: () => {
         onNavigateTab("deliveries");
@@ -69,21 +69,21 @@ export default function DemoFlowModal({
       }
     },
     {
-      title: "4. Simulate Road Closure & Dynamic Reroute",
-      subtitle: "Urban Resiliency in Changing Conditions",
-      script: "“Watch what happens when an incident closes Fergusson College Road. The system recalculates the route in real-time, displays the detour, and updates the ETA from 28 to 32.5 minutes.”",
-      actionText: "Simulate FC Road Closure",
+      title: "4. Dynamic Road Closure Rerouting",
+      subtitle: "Autonomous Incident Response on FC Road",
+      script: "“Let's introduce real-world Pune traffic friction. When Fergusson College Road (FC Road) experiences an incident, Urban Flow instantly recalculates the corridor via Senapati Bapat Road with an ETA change from 28 to 32.5 minutes.”",
+      actionText: "Simulate FC Road Incident",
       icon: AlertTriangle,
       action: () => {
-        onNavigateTab("map");
+        onNavigateTab("overview");
         onTriggerRoadClosure();
       }
     },
     {
-      title: "5. Reverse Logistics Piggybacking",
-      subtitle: "Eliminating Empty Return Journeys",
-      script: "“Instead of delivery vehicles returning empty to the hub, Urban Flow automatically pairs them with eligible package returns and merchant pickups in the destination corridor.”",
-      actionText: "Run Reverse Matcher",
+      title: "5. Reverse Logistics Matching",
+      subtitle: "Don't Let Vehicles Return Empty",
+      script: "“One of Urban Flow's most crucial ideas: once vehicles finish drops, they are assigned customer returns along their return path. We've matched pending returns along the Kothrud and Deccan corridors.”",
+      actionText: "Run Reverse Corridor Matcher",
       icon: RotateCcw,
       action: () => {
         onNavigateTab("reverse");
@@ -91,20 +91,20 @@ export default function DemoFlowModal({
       }
     },
     {
-      title: "6. Simulation Center: Before vs After",
-      subtitle: "Quantifiable Impact: Trips, Kilometers & Carbon Avoided",
-      script: "“Here is our comparative model. Under the same package demand, Urban Flow reduces vehicle trips by 38%, cuts total vehicle kilometers by 36%, and elevates vehicle capacity utilization from 48% to 72%.”",
-      actionText: "Open Simulation Center",
+      title: "6. Simulation & Model Comparison",
+      subtitle: "Conventional Model vs Urban Flow",
+      script: "“Here is our comparative simulation: by coordinating deliveries through 8 micro-hubs, total vehicle trips drop by 38%, fleet distance drops by 42%, and vehicle utilization climbs from 41% to 74%.”",
+      actionText: "Open Simulation Workspace",
       icon: Sliders,
       action: () => {
         onNavigateTab("simulation");
       }
     },
     {
-      title: "7. AI Intelligence Layer Explanation",
-      subtitle: "AI Explains Rather Than Invents Data",
-      script: "“Finally, ask the AI assistant: 'Where should we build the next micro-hub and why?' The AI analyzes live database utilization and provides an evidence-based recommendation.”",
-      actionText: "Launch AI Assistant",
+      title: "7. Grounded Logistics AI Analyst",
+      subtitle: "Database-Grounded Intelligent Queries",
+      script: "“Finally, administrators can query our intelligence layer. Notice how every answer is grounded in live database state—explaining why Hub 04 was chosen or where the city should commission the next facility.”",
+      actionText: "Open AI Intelligence Interface",
       icon: Bot,
       action: () => {
         onOpenAi();
@@ -114,106 +114,116 @@ export default function DemoFlowModal({
 
   if (!isOpen) return null;
 
-  const activeStepData = steps[currentStep];
-  const StepIcon = activeStepData.icon;
+  const current = steps[currentStep];
+  const StepIcon = current.icon;
 
   return (
-    <div className="fixed inset-0 z-[1200] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white border border-[#dadce0] rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
+      
+      <div className="relative w-full max-w-2xl bg-white border border-[#e2e8f0] rounded-2xl shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-150">
         
-        {/* Modal Top Bar */}
-        <div className="p-5 border-b border-[#e8eaed] flex items-center justify-between bg-white">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#fef7e0] flex items-center justify-center text-[#b06000]">
-              <Sparkles className="w-4 h-4 text-[#f29900]" />
-            </div>
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-[#f1f5f9]">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-[#eff6ff] text-[#1e40af]">
+              <Sparkles className="w-4 h-4" />
+            </span>
             <div>
-              <h2 className="text-sm font-bold text-[#202124]">Faculty Demonstration Walkthrough</h2>
-              <p className="text-xs text-[#5f6368]">Step-by-step presentation script & action sequence</p>
+              <h2 className="text-sm font-bold text-[#0f172a]">
+                Faculty Presentation Walkthrough Guide
+              </h2>
+              <span className="text-[11px] text-[#64748b]">
+                Step {currentStep + 1} of {steps.length} • Section 30 Presentation Flow
+              </span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#5f6368] hover:bg-[#f1f3f4] hover:text-[#202124]"
+            className="p-1 text-[#94a3b8] hover:text-[#0f172a] rounded-lg hover:bg-[#f8f9fa] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Stepper Progress */}
-        <div className="flex items-center px-6 py-3 bg-[#f8fafd] border-b border-[#e8eaed] gap-1.5 overflow-x-auto">
+        {/* Step Progression Bar */}
+        <div className="flex items-center gap-1.5">
           {steps.map((s, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentStep(idx)}
-              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap transition-all ${
-                currentStep === idx
-                  ? "bg-[#1a73e8] text-white shadow-xs"
-                  : currentStep > idx
-                  ? "bg-[#e6f4ea] text-[#137333]"
-                  : "bg-[#f1f3f4] text-[#5f6368]"
+              className={`h-1.5 flex-1 rounded-full transition-all ${
+                idx === currentStep
+                  ? "bg-[#1e3a8a]"
+                  : idx < currentStep
+                  ? "bg-[#10b981]"
+                  : "bg-[#e2e8f0]"
               }`}
-            >
-              {currentStep > idx ? <CheckCircle2 className="w-3.5 h-3.5" /> : <span>{idx + 1}</span>}
-              <span className="hidden sm:inline">{s.title.split('.')[1]}</span>
-            </button>
+              title={s.title}
+            />
           ))}
         </div>
 
-        {/* Step Content */}
-        <div className="p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#e8f0fe] flex items-center justify-center text-[#1a73e8]">
-              <StepIcon className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-semibold text-[#1a73e8] uppercase tracking-wider">
-                Step {currentStep + 1} of {steps.length}
-              </span>
-              <h3 className="text-base font-bold text-[#202124]">{activeStepData.title}</h3>
-              <p className="text-xs text-[#5f6368]">{activeStepData.subtitle}</p>
-            </div>
+        {/* Step Card Content */}
+        <div className="p-5 rounded-xl bg-[#f8f9fa] border border-[#e2e8f0] space-y-3">
+          <div className="flex items-center gap-2">
+            <StepIcon className="w-5 h-5 text-[#1e3a8a]" />
+            <h3 className="text-base font-bold text-[#0f172a]">
+              {current.title}
+            </h3>
           </div>
 
-          {/* Presentation Script Box */}
-          <div className="p-4 rounded-2xl bg-[#f8fafd] border border-[#e8eaed] text-[#3c4043] text-xs leading-relaxed italic">
-            <span className="font-sans not-italic text-[10px] font-bold text-[#1a73e8] uppercase tracking-wider block mb-1">
-              Recommended Presentation Script:
-            </span>
-            {activeStepData.script}
+          <div className="text-xs font-semibold text-[#1e40af] uppercase tracking-wider">
+            {current.subtitle}
           </div>
 
-          {/* Action Button */}
-          <div className="pt-2 flex items-center justify-between">
+          <div className="p-3.5 rounded-lg bg-white border border-[#e2e8f0] text-xs text-[#334155] leading-relaxed italic">
+            {current.script}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-2">
+          <button
+            onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+            disabled={currentStep === 0}
+            className="px-3.5 py-2 text-xs font-medium text-[#64748b] hover:text-[#0f172a] disabled:opacity-30 transition-colors"
+          >
+            Previous Step
+          </button>
+
+          <div className="flex items-center gap-2">
             <button
-              onClick={activeStepData.action}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold shadow-xs transition-all hover:scale-[1.01]"
+              onClick={() => {
+                current.action();
+                onClose();
+              }}
+              className="uf-btn-primary text-xs"
             >
               <Play className="w-3.5 h-3.5 fill-white" />
-              <span>{activeStepData.actionText}</span>
+              <span>{current.actionText}</span>
             </button>
 
-            <div className="flex items-center gap-2">
+            {currentStep < steps.length - 1 ? (
               <button
-                disabled={currentStep === 0}
-                onClick={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
-                className="px-4 py-2 rounded-full border border-[#dadce0] text-[#5f6368] hover:bg-[#f1f3f4] text-xs font-medium disabled:opacity-30"
-              >
-                Previous
-              </button>
-              <button
-                disabled={currentStep === steps.length - 1}
-                onClick={() => setCurrentStep((prev) => Math.min(steps.length - 1, prev + 1))}
-                className="flex items-center gap-1 px-4 py-2 rounded-full bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#202124] text-xs font-medium disabled:opacity-30"
+                onClick={() => setCurrentStep(currentStep + 1)}
+                className="uf-btn-secondary text-xs"
               >
                 <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
-            </div>
+            ) : (
+              <button
+                onClick={onClose}
+                className="uf-btn-secondary text-xs"
+              >
+                <span>Finish Guide</span>
+              </button>
+            )}
           </div>
         </div>
 
       </div>
+
     </div>
   );
 }

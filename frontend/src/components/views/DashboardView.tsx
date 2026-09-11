@@ -1,38 +1,32 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useState } from "react";
-import { 
-  DashboardStats, 
-  MapDataResponse, 
-  MicroHub, 
-  Vehicle, 
-  DeliveryCluster,
-  RouteData
-} from "@/types";
-import StatsRibbon from "../StatsRibbon";
-import { 
-  Sparkles, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Package, 
-  ArrowRight, 
-  Warehouse,
-  Truck,
-  Activity,
-  Layers,
-  Clock
-} from "lucide-react";
+import { DashboardStats, MapDataResponse, MicroHub, Vehicle } from "@/types";
+import dynamic from "next/dynamic";
 
-// Dynamic import for Leaflet
-const MapComponent = dynamic(() => import("../MapComponent"), {
+const MapComponent = dynamic(() => import("@/components/MapComponent"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full min-h-[500px] flex items-center justify-center bg-white border border-[#e8eaed] rounded-2xl text-[#5f6368] text-xs">
-      Loading Pune Urban Flow Geospatial Layer...
+    <div className="w-full h-[440px] flex items-center justify-center bg-white border border-[#e2e8f0] rounded-xl text-[#64748b] text-xs">
+      Loading Pune Network Cartography...
     </div>
   ),
 });
+import { 
+  Truck, 
+  Package, 
+  Gauge, 
+  RotateCcw, 
+  AlertTriangle, 
+  ArrowUpRight, 
+  Sparkles, 
+  Activity, 
+  ChevronRight,
+  TrendingDown,
+  Building2,
+  CheckCircle2,
+  Clock
+} from "lucide-react";
 
 interface DashboardProps {
   stats: DashboardStats | null;
@@ -57,82 +51,196 @@ export default function DashboardView({
   isRerouted,
   rerouteDetails,
 }: DashboardProps) {
-  const [selectedFeedTab, setSelectedFeedTab] = useState<"clusters" | "routes" | "incidents">("clusters");
+  // Activity Feed Events
+  const recentEvents = [
+    {
+      id: 1,
+      type: "reroute",
+      title: isRerouted ? "Dynamic Reroute Triggered" : "Corridor Optimization Active",
+      desc: isRerouted 
+        ? "Vehicle UF-012 rerouted via Senapati Bapat Road (+4.5 min detour)" 
+        : "FC Road corridor nominal; routing via direct arterial grid",
+      time: "Just now",
+      badge: isRerouted ? "Critical" : "Nominal",
+      badgeClass: isRerouted ? "uf-badge-critical" : "uf-badge-neutral",
+    },
+    {
+      id: 2,
+      type: "hub",
+      title: "Hub Approaching Capacity",
+      desc: "Hub 04 (Baner) storage capacity reached 78% of operating threshold",
+      time: "3 min ago",
+      badge: "Warning",
+      badgeClass: "uf-badge-warning",
+    },
+    {
+      id: 3,
+      type: "cluster",
+      title: "Delivery Cluster Consolidated",
+      desc: "Shivajinagar sector: 24 package drops merged into 1 electric cargo run",
+      time: "8 min ago",
+      badge: "Efficient",
+      badgeClass: "uf-badge-success",
+    },
+    {
+      id: 4,
+      type: "reverse",
+      title: "Reverse Pickup Paired",
+      desc: "Returning EV from Kothrud matched with 3 customer returns",
+      time: "14 min ago",
+      badge: "Piggyback",
+      badgeClass: "uf-badge-info",
+    },
+    {
+      id: 5,
+      type: "traffic",
+      title: "Peak Corridor Congestion",
+      desc: "JM Road flow velocity normalized to 26 km/h following dispatch pacing",
+      time: "21 min ago",
+      badge: "Active",
+      badgeClass: "uf-badge-neutral",
+    },
+  ];
+
+  const activeVehicles = stats?.active_vehicles || 30;
+  const deliveriesInTransit = stats?.packages_in_transit || 520;
+  const utilizationPct = stats?.average_vehicle_utilization_pct || 74.2;
+  const tripsAvoided = stats?.simulated_trips_avoided || 471;
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto px-4 sm:px-6 py-5">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
       
-      {/* Top Banner (Item 7) */}
-      <div className="bg-white border border-[#e8eaed] rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl font-bold text-[#202124] tracking-tight">Urban Flow</span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#e6f4ea] text-[#188038] text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-[#34a853] animate-pulse"></span>
-              Pune Network • Operational
-            </span>
+      {/* Concept Hero Statement Banner */}
+      <div className="bg-white border border-[#e2e8f0] rounded-xl p-6 shadow-2xs">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#eff6ff] text-[#1e40af] text-xs font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+              <span>Pune Urban Coordination Zone • Live Operational Network</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#0f172a] tracking-tight">
+              The second road network for everything your city needs.
+            </h1>
+            <p className="text-sm text-[#475569] max-w-3xl leading-relaxed">
+              Today's roads move people. Urban Flow coordinates logistics into a shared digital layer—grouping consignments, dispatching via 8 neighborhood micro-hubs, and eliminating empty return trips.
+            </p>
           </div>
-          <p className="text-sm text-[#5f6368]">
-            The second road network for everything your city needs.
-          </p>
-        </div>
 
-        {/* Quick Operations Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onOptimizeNetwork}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold shadow-xs transition-all"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Optimize Network</span>
-          </button>
-          {!isRerouted ? (
+          <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={onSimulateReroute}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white hover:bg-[#fce8e6] text-[#d93025] border border-[#f5c6cb] text-xs font-medium transition-all"
+              onClick={onOptimizeNetwork}
+              className="uf-btn-primary text-xs"
+              title="Consolidate unassigned packages into nearest micro-hubs"
             >
-              <AlertTriangle className="w-3.5 h-3.5 text-[#ea4335]" />
-              <span>Simulate Road Closure</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Consolidate Demand</span>
             </button>
-          ) : (
-            <button
-              onClick={onClearClosure}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#e6f4ea] hover:bg-[#ceead6] text-[#137333] border border-[#a8dab5] text-xs font-semibold transition-all"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#188038]" />
-              <span>Restore Corridor</span>
-            </button>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Dynamic Road Closure Notice (when active) */}
+      {/* Reroute Incident Alert (when active) */}
       {isRerouted && (
-        <div className="p-4 rounded-2xl bg-[#fef7e0] border border-[#fbbc04] flex flex-wrap items-center justify-between gap-3 text-xs text-[#b06000]">
+        <div className="bg-[#fef2f2] border border-[#fecaca] rounded-xl p-4 flex items-center justify-between animate-in fade-in duration-200">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-[#f29900] shrink-0" />
+            <div className="w-8 h-8 rounded-lg bg-white border border-[#fecaca] flex items-center justify-center text-[#ef4444] shrink-0 font-bold">
+              ⚠️
+            </div>
             <div>
-              <b className="font-semibold text-[#804000]">Active Road Closure: Fergusson College Road (FC Road)</b>
-              <p className="text-[#994d00]">Route UF-R001 dynamically rerouted via Senapati Bapat Road. ETA adjusted from 28 min to 32.5 min (+4.5 min detour).</p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#991b1b] uppercase tracking-wider">Dynamic Reroute Active</span>
+                <span className="text-xs text-[#991b1b] font-mono">• Fergusson College Road (FC Road) Incident</span>
+              </div>
+              <p className="text-xs text-[#7f1d1d] mt-0.5">
+                Route #1 diverted via Senapati Bapat Road. ETA adjusted from 28.0 min to 32.5 min (+4.5 min delay avoided gridlock).
+              </p>
             </div>
           </div>
           <button
             onClick={onClearClosure}
-            className="px-3 py-1 rounded-full bg-[#ffffff] border border-[#fbbc04] text-[#804000] font-semibold hover:bg-[#feefc3]"
+            className="px-3 py-1.5 bg-white border border-[#fecaca] text-xs font-semibold text-[#991b1b] hover:bg-[#fee2e2] rounded-lg transition-colors"
           >
             Clear Incident
           </button>
         </div>
       )}
 
-      {/* Metrics Ribbon (Item 7 - 8 real cards from backend) */}
-      <StatsRibbon stats={stats} />
-
-      {/* Main Grid: Interactive Map (Left 68%) & Live Operations Feed (Right 32%) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      {/* 4 Core High-Impact Metrics (Section 9) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* Interactive Map Column */}
-        <div className="lg:col-span-8 h-[540px] flex flex-col">
+        {/* Metric 1: Active Vehicles */}
+        <div className="uf-card p-5">
+          <div className="flex items-center justify-between text-[#64748b] mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Active Vehicles</span>
+            <Truck className="w-4 h-4 text-[#1e3a8a]" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-bold text-[#0f172a] font-mono">
+            {activeVehicles}
+          </div>
+          <div className="text-xs text-[#64748b] mt-1 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+            <span>{stats?.vehicles_in_transit || 14} in transit across Pune</span>
+          </div>
+        </div>
+
+        {/* Metric 2: Deliveries In Transit */}
+        <div className="uf-card p-5">
+          <div className="flex items-center justify-between text-[#64748b] mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Deliveries In Transit</span>
+            <Package className="w-4 h-4 text-[#2563eb]" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-bold text-[#0f172a] font-mono">
+            {deliveriesInTransit}
+          </div>
+          <div className="text-xs text-[#64748b] mt-1">
+            <span>{stats?.packages_consolidated || 917} consolidated ({stats?.consolidation_rate_pct || 74.2}%)</span>
+          </div>
+        </div>
+
+        {/* Metric 3: Vehicle Load Utilization */}
+        <div className="uf-card p-5">
+          <div className="flex items-center justify-between text-[#64748b] mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Vehicle Utilization</span>
+            <Gauge className="w-4 h-4 text-[#10b981]" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-bold text-[#0f172a] font-mono">
+            {utilizationPct}%
+          </div>
+          <div className="text-xs text-[#065f46] mt-1 flex items-center gap-1 font-medium">
+            <span>+32% vs uncoordinated single-drop</span>
+          </div>
+        </div>
+
+        {/* Metric 4: Direct Trips Avoided */}
+        <div className="uf-card p-5">
+          <div className="flex items-center justify-between text-[#64748b] mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Trips Avoided</span>
+            <TrendingDown className="w-4 h-4 text-[#0284c7]" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-bold text-[#0f172a] font-mono">
+            {tripsAvoided}
+          </div>
+          <div className="text-xs text-[#0369a1] mt-1 flex items-center gap-1 font-medium">
+            <span>~{stats?.simulated_distance_saved_km || 1601.4} km less road traffic</span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Main Operational Section: Map + Live Network Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        
+        {/* Left 2 Cols: Central Interactive Pune Map */}
+        <div className="lg:col-span-2 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-[#0f172a] uppercase tracking-wider">
+                Geospatial Coordination Map
+              </span>
+              <span className="text-[11px] text-[#64748b]">• 8 Micro-Hubs & Active Corridors</span>
+            </div>
+          </div>
+
           <MapComponent
             mapData={mapData}
             onSimulateReroute={onSimulateReroute}
@@ -140,140 +248,63 @@ export default function DashboardView({
             onSelectHub={onSelectHub}
             onSelectVehicle={onSelectVehicle}
             isRerouted={isRerouted}
+            compactHeight={true}
           />
         </div>
 
-        {/* Live Operational Telemetry Column */}
-        <div className="lg:col-span-4 h-[540px] flex flex-col google-card p-4 overflow-hidden bg-white">
-          
-          <div className="flex items-center justify-between pb-3 border-b border-[#e8eaed] mb-3">
-            <div>
-              <h2 className="text-xs font-bold text-[#202124] uppercase tracking-wider">
-                Live Operations Feed
-              </h2>
-              <span className="text-[11px] text-[#5f6368]">Active Pune City movements</span>
+        {/* Right 1 Col: Live Network Activity Feed (Section 9) */}
+        <div className="uf-card p-5 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-[#f1f5f9]">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[#1e3a8a]" />
+              <span className="text-xs font-bold text-[#0f172a] uppercase tracking-wider">
+                Network Activity Feed
+              </span>
             </div>
-            <span className="w-2 h-2 rounded-full bg-[#34a853] animate-pulse"></span>
+            <span className="text-[11px] text-[#64748b] flex items-center gap-1 font-mono">
+              <Clock className="w-3 h-3" /> Live
+            </span>
           </div>
 
-          {/* Sub-tabs */}
-          <div className="flex items-center gap-1 mb-3 bg-[#f1f3f4] p-1 rounded-xl text-xs">
-            <button
-              onClick={() => setSelectedFeedTab("clusters")}
-              className={`flex-1 py-1.5 rounded-lg font-medium transition-all ${
-                selectedFeedTab === "clusters" ? "bg-white text-[#1a73e8] font-semibold shadow-xs" : "text-[#5f6368]"
-              }`}
-            >
-              Clusters ({mapData?.clusters?.length || 5})
-            </button>
-            <button
-              onClick={() => setSelectedFeedTab("routes")}
-              className={`flex-1 py-1.5 rounded-lg font-medium transition-all ${
-                selectedFeedTab === "routes" ? "bg-white text-[#1a73e8] font-semibold shadow-xs" : "text-[#5f6368]"
-              }`}
-            >
-              Routes ({mapData?.routes?.length || 1})
-            </button>
-            <button
-              onClick={() => setSelectedFeedTab("incidents")}
-              className={`flex-1 py-1.5 rounded-lg font-medium transition-all ${
-                selectedFeedTab === "incidents" ? "bg-white text-[#1a73e8] font-semibold shadow-xs" : "text-[#5f6368]"
-              }`}
-            >
-              Incidents ({mapData?.traffic_events?.length || 0})
-            </button>
+          <div className="space-y-3">
+            {recentEvents.map((evt) => (
+              <div 
+                key={evt.id} 
+                className="p-3 rounded-lg bg-[#f8f9fa] border border-[#f1f5f9] hover:border-[#cbd5e1] transition-all"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-semibold text-[#0f172a]">{evt.title}</span>
+                  <span className={`uf-badge text-[10px] ${evt.badgeClass}`}>{evt.badge}</span>
+                </div>
+                <p className="text-[11px] text-[#475569] leading-snug">
+                  {evt.desc}
+                </p>
+                <span className="text-[10px] text-[#94a3b8] mt-1.5 block font-mono">
+                  {evt.time}
+                </span>
+              </div>
+            ))}
           </div>
 
-          {/* Feed Content */}
-          <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
-            {selectedFeedTab === "clusters" && (
-              <>
-                {mapData?.clusters?.map((c) => (
-                  <div
-                    key={c.id}
-                    className="p-3 rounded-xl border border-[#e8eaed] hover:border-[#d2e3fc] bg-white text-xs flex items-center justify-between transition-all"
-                  >
-                    <div>
-                      <div className="font-semibold text-[#202124] flex items-center gap-1.5">
-                        <Package className="w-3.5 h-3.5 text-[#1a73e8]" />
-                        {c.code}
-                      </div>
-                      <div className="text-[11px] text-[#5f6368] mt-0.5">
-                        {c.package_count} Packages • {c.total_weight_kg} kg combined
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#e6f4ea] text-[#188038]">
-                        Consolidated
-                      </span>
-                      <div className="text-[10px] text-[#80868b] mt-1 font-mono">
-                        Hub 0{c.hub_id || 1}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-
-            {selectedFeedTab === "routes" && (
-              <>
-                {mapData?.routes?.map((r) => (
-                  <div
-                    key={r.id}
-                    className={`p-3 rounded-xl border text-xs flex flex-col gap-1.5 transition-all ${
-                      r.is_rerouted
-                        ? "bg-[#fef7e0]/50 border-[#fbbc04]"
-                        : "bg-white border-[#e8eaed]"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-[#202124] flex items-center gap-1.5">
-                        <Truck className="w-3.5 h-3.5 text-[#1a73e8]" />
-                        {r.code}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        r.is_rerouted ? "bg-[#fce8e6] text-[#c5221f]" : "bg-[#e8f0fe] text-[#1a73e8]"
-                      }`}>
-                        {r.status.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] text-[#5f6368]">
-                      <span>Distance: {r.distance_km} km</span>
-                      <span className="text-[#1a73e8] font-semibold">ETA: {r.eta_min} min</span>
-                    </div>
-                    {r.empty_returns_avoided > 0 && (
-                      <div className="text-[11px] text-[#188038] font-medium pt-1 border-t border-[#f1f3f4]">
-                        ✓ {r.empty_returns_avoided} Reverse pickup paired (Zero empty return)
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </>
-            )}
-
-            {selectedFeedTab === "incidents" && (
-              <>
-                {mapData?.traffic_events && mapData.traffic_events.length > 0 ? (
-                  mapData.traffic_events.map((te) => (
-                    <div
-                      key={te.id}
-                      className="p-3 rounded-xl bg-[#fce8e6]/40 border border-[#f5c6cb] text-xs space-y-1"
-                    >
-                      <div className="font-bold text-[#c5221f] flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-[#ea4335]" />
-                        {te.road}
-                      </div>
-                      <p className="text-[#5f6368] text-[11px]">{te.description}</p>
-                      <div className="text-[10px] text-[#80868b]">Area: {te.area}</div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-[#5f6368] text-xs">
-                    No active traffic closures. Pune arterial corridors operating normally.
-                  </div>
-                )}
-              </>
-            )}
+          {/* Micro-Hub Operating Summary Snapshot */}
+          <div className="pt-3 border-t border-[#f1f5f9]">
+            <div className="text-[11px] font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+              Micro-Hub Facility Load
+            </div>
+            <div className="space-y-1.5 text-xs">
+              <div className="flex justify-between text-[#475569]">
+                <span>Shivajinagar Central</span>
+                <span className="font-mono font-medium text-[#0f172a]">68% capacity</span>
+              </div>
+              <div className="flex justify-between text-[#475569]">
+                <span>Hinjewadi Tech Corridor</span>
+                <span className="font-mono font-medium text-[#0f172a]">82% capacity</span>
+              </div>
+              <div className="flex justify-between text-[#475569]">
+                <span>Kothrud Residential</span>
+                <span className="font-mono font-medium text-[#0f172a]">54% capacity</span>
+              </div>
+            </div>
           </div>
 
         </div>

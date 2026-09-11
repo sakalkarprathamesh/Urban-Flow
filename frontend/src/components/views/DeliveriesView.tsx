@@ -6,16 +6,19 @@ import { fetchApi } from "@/lib/api";
 import { 
   Package, 
   Plus, 
-  UploadCloud, 
   Sparkles, 
   Search, 
   Filter, 
   CheckCircle2, 
   Clock, 
   Truck, 
-  RotateCcw,
-  Layers,
-  ChevronDown
+  Warehouse,
+  X,
+  ArrowRight,
+  ExternalLink,
+  ChevronRight,
+  ShieldCheck,
+  MapPin
 } from "lucide-react";
 
 interface DeliveriesProps {
@@ -28,18 +31,8 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
-  
-  // Modals
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showBatchModal, setShowBatchModal] = useState(false);
-  
-  // Form fields
-  const [recipient, setRecipient] = useState("");
-  const [area, setArea] = useState("Kothrud");
-  const [address, setAddress] = useState("");
-  const [weight, setWeight] = useState(2.5);
-  const [priority, setPriority] = useState("STANDARD");
-  const [isReverse, setIsReverse] = useState(false);
+  const [selectedPriority, setSelectedPriority] = useState<string>("ALL");
+  const [selectedPackage, setSelectedPackage] = useState<PackageItem | null>(null);
 
   const loadPackages = async () => {
     setLoading(true);
@@ -57,386 +50,299 @@ export default function DeliveriesView({ onTriggerOptimize, clusters }: Deliveri
     loadPackages();
   }, []);
 
-  const handleCreateDelivery = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetchApi("/api/deliveries", {
-        method: "POST",
-        body: JSON.stringify({
-          recipient_name: recipient,
-          dest_area: area,
-          dest_address: address || `Near ${area} Market`,
-          dest_lat: area === "Kothrud" ? 18.5074 : area === "Hinjewadi" ? 18.5912 : 18.5679,
-          dest_lng: area === "Kothrud" ? 73.8077 : area === "Hinjewadi" ? 73.7389 : 73.9143,
-          weight_kg: Number(weight),
-          priority: priority,
-          is_reverse_eligible: isReverse,
-          deadline: priority === "EXPRESS" ? "17:00" : "20:00"
-        })
-      });
-      setShowCreateModal(false);
-      setRecipient("");
-      setAddress("");
-      loadPackages();
-    } catch (err) {
-      alert("Failed to create shipment order.");
-    }
-  };
+  // Filter packages based on search query, status, and priority
+  const filteredPackages = packages.filter((pkg) => {
+    const matchesSearch = 
+      pkg.tracking_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pkg.recipient_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pkg.dest_area?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = 
+      selectedStatus === "ALL" || 
+      pkg.status?.toUpperCase() === selectedStatus;
 
-  const handleBatchSample = async () => {
-    const sampleBatch = [
-      { sender_name: "Pune Electronics Corp", recipient_name: "Tech Sol, Hinjewadi", dest_lat: 18.5912, dest_lng: 73.7389, dest_area: "Hinjewadi", dest_address: "Tech Hub Phase 1", weight_kg: 5.2, priority: "EXPRESS" },
-      { sender_name: "Pune Fresh Groceries", recipient_name: "Sunita G., Kothrud", dest_lat: 18.5080, dest_lng: 73.8110, dest_area: "Kothrud", dest_address: "Mayur Colony", weight_kg: 3.5, priority: "STANDARD" },
-      { sender_name: "MedLife Pharmaceuticals", recipient_name: "Deccan Diagnostics", dest_lat: 18.5245, dest_lng: 73.8402, dest_area: "FC Road / Deccan", dest_address: "FC Road Plaza", weight_kg: 1.2, priority: "EXPRESS" },
-      { sender_name: "EastPune Organics", recipient_name: "Viman Nagar Resident", dest_lat: 18.5679, dest_lng: 73.9143, dest_area: "Viman Nagar", dest_address: "Symbiosis Road", weight_kg: 4.1, priority: "STANDARD" },
-    ];
-    try {
-      await fetchApi("/api/deliveries/batch", {
-        method: "POST",
-        body: JSON.stringify(sampleBatch)
-      });
-      setShowBatchModal(false);
-      loadPackages();
-    } catch (e) {
-      alert("Batch ingest failed.");
-    }
-  };
+    const matchesPriority = 
+      selectedPriority === "ALL" || 
+      pkg.priority?.toUpperCase() === selectedPriority;
 
-  const filteredPackages = packages.filter((p) => {
-    const matchesSearch = p.tracking_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.dest_area.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.recipient_name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = selectedStatus === "ALL" || p.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesPriority;
   });
 
+  const getStatusBadge = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case "DELIVERED":
+        return <span className="uf-badge uf-badge-success">Delivered</span>;
+      case "IN_TRANSIT":
+        return <span className="uf-badge uf-badge-info">In Transit</span>;
+      case "CONSOLIDATED":
+        return <span className="uf-badge uf-badge-neutral font-mono">Consolidated</span>;
+      case "PENDING":
+        return <span className="uf-badge uf-badge-warning">Pending Hub</span>;
+      default:
+        return <span className="uf-badge uf-badge-neutral">{status}</span>;
+    }
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority?.toUpperCase()) {
+      case "URGENT":
+        return <span className="text-[11px] font-semibold text-[#ef4444] flex items-center gap-1">● Urgent</span>;
+      case "HIGH":
+        return <span className="text-[11px] font-medium text-[#f59e0b] flex items-center gap-1">● High</span>;
+      default:
+        return <span className="text-[11px] text-[#64748b]">Standard</span>;
+    }
+  };
+
   return (
-    <div className="space-y-5 max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div className="p-6 space-y-5 max-w-7xl mx-auto">
       
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* Top Header & Fast Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-[#e2e8f0] rounded-xl p-5 shadow-2xs">
         <div>
-          <h1 className="text-xl font-bold text-[#202124] flex items-center gap-2">
-            <Package className="w-5 h-5 text-[#1a73e8]" />
-            Deliveries & Spatial Clustering
-          </h1>
-          <p className="text-xs text-[#5f6368]">
-            Coordinated goods manifest for the Pune urban network
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-bold text-[#0f172a] tracking-tight">
+              Delivery Manifest & Consolidation
+            </h1>
+            <span className="uf-badge uf-badge-info font-mono text-[11px]">
+              {packages.length} Consignments
+            </span>
+          </div>
+          <p className="text-xs text-[#64748b] mt-0.5">
+            Consolidated parcel orders across Pune neighborhood corridors and micro-hub sorting nodes.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowBatchModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white hover:bg-[#f8f9fa] text-[#5f6368] hover:text-[#202124] text-xs font-medium border border-[#dadce0] shadow-xs transition-all"
-          >
-            <UploadCloud className="w-4 h-4 text-[#5f6368]" />
-            <span>Upload Manifest (CSV)</span>
-          </button>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium shadow-xs transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Delivery</span>
-          </button>
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onTriggerOptimize}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1a73e8] text-xs font-semibold border border-[#d2e3fc] transition-all"
+            className="uf-btn-primary text-xs shadow-xs"
+            title="Spatially cluster unassigned packages into micro-hubs"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Optimize Network</span>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Optimize Spatial Clusters</span>
           </button>
         </div>
       </div>
 
-      {/* Active Clusters Card (Item 9 from spec) */}
-      <div className="google-card p-5 bg-white space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold text-[#202124] uppercase tracking-wider flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#1a73e8]" />
-            Active Delivery Clusters Formed ({clusters.length})
-          </h2>
-          <span className="text-[11px] text-[#5f6368]">
-            Grouped by Haversine proximity & Hub capacity thresholds
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {clusters.map((c) => (
-            <div
-              key={c.id}
-              className="p-3.5 rounded-xl bg-[#f8fafd] border border-[#e8eaed] text-xs space-y-1"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#1a73e8]">{c.code}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#e6f4ea] text-[#188038] font-semibold">
-                  Consolidated
-                </span>
-              </div>
-              <div className="text-[#202124] font-medium pt-1">
-                {c.package_count} Packages • {c.total_weight_kg} kg
-              </div>
-              <div className="text-[11px] text-[#5f6368]">
-                Assigned: <b className="text-[#202124]">Hub 0{c.hub_id || 1}</b>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Search & Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#e8eaed]">
-        <div className="relative flex-1 min-w-[260px]">
-          <Search className="w-4 h-4 text-[#5f6368] absolute left-3 top-1/2 -translate-y-1/2" />
+      {/* Filter & Search Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white border border-[#e2e8f0] rounded-xl p-3 shadow-2xs">
+        
+        {/* Search Input */}
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-[#94a3b8]" />
           <input
             type="text"
+            placeholder="Search by Tracking ID, Area, or Recipient..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search delivery ID, business, recipient, or Pune area..."
-            className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-xl pl-9 pr-3 py-2 text-xs text-[#202124] outline-none focus:border-[#1a73e8] focus:bg-white transition-all placeholder:text-[#80868b]"
+            className="w-full pl-9 pr-4 py-1.5 text-xs bg-[#f8f9fa] border border-[#e2e8f0] rounded-lg focus:outline-none focus:border-[#2563eb] text-[#0f172a]"
           />
         </div>
 
-        {/* Status Chips (Item 11) */}
+        {/* Status Filter Chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs">
-          {[
-            { id: "ALL", label: "All" },
-            { id: "CREATED", label: "Created" },
-            { id: "ASSIGNED", label: "Assigned" },
-            { id: "AT_MICRO_HUB", label: "At Micro-Hub" },
-            { id: "CONSOLIDATED", label: "Consolidated" },
-            { id: "IN_TRANSIT", label: "In Transit" },
-            { id: "DELIVERED", label: "Delivered" },
-            { id: "RETURN_REQUESTED", label: "Return Requested" },
-          ].map((st) => (
+          <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider mr-1 hidden sm:inline">
+            Status:
+          </span>
+          {["ALL", "IN_TRANSIT", "CONSOLIDATED", "PENDING", "DELIVERED"].map((status) => (
             <button
-              key={st.id}
-              onClick={() => setSelectedStatus(st.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                selectedStatus === st.id
-                  ? "bg-[#1a73e8] text-white font-semibold"
-                  : "bg-[#f1f3f4] text-[#5f6368] hover:text-[#202124] hover:bg-[#e8eaed]"
+              key={status}
+              onClick={() => setSelectedStatus(status)}
+              className={`px-2.5 py-1 rounded-md text-xs transition-all ${
+                selectedStatus === status
+                  ? "bg-[#1e3a8a] text-white font-medium"
+                  : "bg-[#f8f9fa] text-[#64748b] hover:text-[#0f172a] hover:bg-[#f1f5f9]"
               }`}
             >
-              {st.label}
+              {status === "ALL" ? "All Orders" : status.replace('_', ' ')}
             </button>
           ))}
         </div>
+
       </div>
 
-      {/* Data Table (Item 11 columns) */}
-      <div className="google-card overflow-hidden bg-white">
+      {/* Clean Manifest Table */}
+      <div className="uf-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#f8fafd] text-[#5f6368] uppercase tracking-wider font-semibold text-[11px] border-b border-[#e8eaed]">
-              <tr>
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-[#f8f9fa] border-b border-[#e2e8f0] text-[#64748b] font-medium text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4">Delivery ID</th>
-                <th className="py-3 px-4">Business</th>
-                <th className="py-3 px-4">Recipient</th>
+                <th className="py-3 px-4">Pickup Origin</th>
                 <th className="py-3 px-4">Destination</th>
-                <th className="py-3 px-4">Weight</th>
+                <th className="py-3 px-4">Package</th>
                 <th className="py-3 px-4">Priority</th>
+                <th className="py-3 px-4">Vehicle</th>
                 <th className="py-3 px-4">Hub</th>
                 <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">ETA</th>
+                <th className="py-3 px-4 text-right">ETA</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f1f3f4] text-[#3c4043]">
-              {filteredPackages.map((p) => {
-                const isDelivered = p.status === "DELIVERED";
-                const isTransit = p.status === "IN_TRANSIT";
-                const isConsolidated = p.status === "CONSOLIDATED";
-                const isReturn = p.status === "RETURN_REQUESTED";
-
-                const chipClass = isDelivered
-                  ? "bg-[#e6f4ea] text-[#137333]"
-                  : isTransit
-                  ? "bg-[#e8f0fe] text-[#1a73e8]"
-                  : isConsolidated
-                  ? "bg-[#e8f0fe] text-[#1a73e8]"
-                  : isReturn
-                  ? "bg-[#fef7e0] text-[#b06000]"
-                  : "bg-[#f1f3f4] text-[#5f6368]";
-
-                return (
-                  <tr key={p.id} className="hover:bg-[#f8fafd] transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-semibold text-[#202124]">
-                      {p.tracking_code}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#5f6368]">
-                      {p.sender_name}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#202124] font-medium">
-                      {p.recipient_name}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="font-medium text-[#202124]">{p.dest_area}</span>
-                      <div className="text-[11px] text-[#80868b] truncate max-w-[160px]">{p.dest_address}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-[#5f6368]">
-                      {p.weight_kg} kg
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                        p.priority === "EXPRESS" ? "bg-[#fce8e6] text-[#c5221f]" : "bg-[#f1f3f4] text-[#5f6368]"
-                      }`}>
-                        {p.priority}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-medium text-[#1a73e8]">
-                      Hub 0{p.assigned_hub_id || 1}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${chipClass}`}>
-                        {p.status.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-[#5f6368]">
-                      {p.deadline || "18:00"}
-                    </td>
-                  </tr>
-                );
-              })}
+            <tbody className="divide-y divide-[#f1f5f9]">
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-[#64748b]">
+                    Loading delivery manifest from Pune network database...
+                  </td>
+                </tr>
+              ) : filteredPackages.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-[#64748b]">
+                    <Package className="w-8 h-8 text-[#cbd5e1] mx-auto mb-2" />
+                    <p className="font-semibold text-[#0f172a]">No deliveries found</p>
+                    <p className="text-xs text-[#94a3b8]">Try modifying your search or status filter</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredPackages.map((pkg) => {
+                  const isSelected = selectedPackage?.id === pkg.id;
+                  return (
+                    <tr
+                      key={pkg.id}
+                      onClick={() => setSelectedPackage(pkg)}
+                      className={`cursor-pointer transition-colors ${
+                        isSelected 
+                          ? "bg-[#eff6ff]" 
+                          : "hover:bg-[#f8f9fa]"
+                      }`}
+                    >
+                      <td className="py-3 px-4 font-mono font-medium text-[#1e40af]">
+                        {pkg.tracking_number}
+                      </td>
+                      <td className="py-3 px-4 text-[#475569]">
+                        Shivajinagar Central
+                      </td>
+                      <td className="py-3 px-4 font-medium text-[#0f172a]">
+                        {pkg.dest_area}
+                        <span className="block text-[11px] text-[#94a3b8] font-normal truncate max-w-[160px]">
+                          {pkg.dest_address}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-[#475569]">
+                        <span className="font-mono">{pkg.weight_kg} kg</span>
+                        <span className="text-[#94a3b8] text-[10px] block capitalize">{pkg.size_category}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        {getPriorityBadge(pkg.priority)}
+                      </td>
+                      <td className="py-3 px-4 text-[#475569] font-mono">
+                        {pkg.assigned_vehicle_id ? `V-${String(pkg.assigned_vehicle_id).padStart(2, '0')}` : "—"}
+                      </td>
+                      <td className="py-3 px-4 text-[#475569]">
+                        {pkg.assigned_hub_id ? `Hub 0${pkg.assigned_hub_id}` : "Pending"}
+                      </td>
+                      <td className="py-3 px-4">
+                        {getStatusBadge(pkg.status)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono text-[#475569]">
+                        {pkg.estimated_delivery_time ? new Date(pkg.estimated_delivery_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "18:30 IST"}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* New Delivery Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-[1200] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#dadce0] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-2 border-b border-[#e8eaed]">
-              <h3 className="text-base font-bold text-[#202124]">Create Delivery Request</h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-[#5f6368] hover:text-[#202124]">✕</button>
+      {/* Slide-over Delivery Journey Drawer (Progressive Disclosure) */}
+      {selectedPackage && (
+        <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 bg-white border-l border-[#e2e8f0] shadow-2xl p-6 overflow-y-auto animate-in slide-in-from-right duration-200">
+          <div className="flex items-center justify-between pb-3 border-b border-[#f1f5f9]">
+            <div>
+              <span className="text-[10px] font-semibold text-[#94a3b8] uppercase tracking-wider">
+                Consignment Telemetry
+              </span>
+              <h2 className="text-base font-bold text-[#0f172a] font-mono mt-0.5">
+                {selectedPackage.tracking_number}
+              </h2>
             </div>
-            <form onSubmit={handleCreateDelivery} className="space-y-3 text-xs">
-              <div>
-                <label className="block text-[#5f6368] mb-1 font-medium">Recipient Name</label>
-                <input
-                  type="text"
-                  required
-                  value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
-                  placeholder="e.g. Ramesh Kulkarni"
-                  className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none focus:border-[#1a73e8] focus:bg-white"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[#5f6368] mb-1 font-medium">Pune Area</label>
-                  <select
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
-                  >
-                    <option value="Kothrud">Kothrud</option>
-                    <option value="Shivajinagar">Shivajinagar</option>
-                    <option value="Hinjewadi">Hinjewadi</option>
-                    <option value="Viman Nagar">Viman Nagar</option>
-                    <option value="Baner">Baner</option>
-                    <option value="Hadapsar">Hadapsar</option>
-                    <option value="FC Road / Deccan">FC Road / Deccan</option>
-                    <option value="Swargate">Swargate</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[#5f6368] mb-1 font-medium">Weight (kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={weight}
-                    onChange={(e) => setWeight(Number(e.target.value))}
-                    className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[#5f6368] mb-1 font-medium">Street Address</label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="e.g. Plot 42, Paud Road, Kothrud"
-                  className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[#5f6368] mb-1 font-medium">Priority</label>
-                  <select
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                    className="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-lg p-2 text-[#202124] outline-none"
-                  >
-                    <option value="STANDARD">Standard</option>
-                    <option value="EXPRESS">Express (Time Sensitive)</option>
-                    <option value="ECONOMY">Economy</option>
-                  </select>
-                </div>
-                <div className="flex items-center pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer text-[#3c4043]">
-                    <input
-                      type="checkbox"
-                      checked={isReverse}
-                      onChange={(e) => setIsReverse(e.target.checked)}
-                      className="rounded border-[#dadce0] text-[#1a73e8]"
-                    />
-                    Reverse Return Eligible
-                  </label>
-                </div>
-              </div>
-              <div className="pt-2 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-[#dadce0] text-[#5f6368] hover:bg-[#f1f3f4]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium"
-                >
-                  Submit Order
-                </button>
-              </div>
-            </form>
+            <button
+              onClick={() => setSelectedPackage(null)}
+              className="p-1 text-[#94a3b8] hover:text-[#0f172a] rounded-md transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        </div>
-      )}
 
-      {/* Batch Upload Modal */}
-      {showBatchModal && (
-        <div className="fixed inset-0 z-[1200] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#dadce0] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-2 border-b border-[#e8eaed]">
-              <h3 className="text-base font-bold text-[#202124]">Business Manifest Ingest</h3>
-              <button onClick={() => setShowBatchModal(false)} className="text-[#5f6368] hover:text-[#202124]">✕</button>
+          <div className="py-4 space-y-5 text-xs">
+            {/* Status overview */}
+            <div className="p-3 rounded-lg bg-[#f8f9fa] border border-[#e2e8f0] flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-[#64748b] block">Current Stage</span>
+                <span className="font-semibold text-[#0f172a] capitalize">{selectedPackage.status?.replace('_', ' ')}</span>
+              </div>
+              {getStatusBadge(selectedPackage.status)}
             </div>
-            <p className="text-xs text-[#5f6368]">
-              Upload CSV manifests to identify multi-merchant consolidation opportunities across Pune.
-            </p>
-            <div className="border-2 border-dashed border-[#dadce0] rounded-2xl p-6 text-center space-y-2 bg-[#f8fafd]">
-              <UploadCloud className="w-8 h-8 text-[#1a73e8] mx-auto" />
-              <div className="text-xs font-medium text-[#202124]">Drop shipment manifest here</div>
-              <div className="text-[11px] text-[#80868b]">Supported columns: Delivery ID, Business, Destination, Weight, Priority</div>
+
+            {/* Lifecycle Timeline */}
+            <div>
+              <div className="text-[10px] font-semibold text-[#94a3b8] uppercase tracking-wider mb-3">
+                Lifecycle Timeline
+              </div>
+              <div className="space-y-3 pl-2 border-l-2 border-[#e2e8f0]">
+                <div className="relative pl-4">
+                  <span className="absolute -left-[13px] top-0.5 w-3 h-3 rounded-full bg-[#10b981] border-2 border-white"></span>
+                  <div className="font-semibold text-[#0f172a]">Package Ingested</div>
+                  <div className="text-[11px] text-[#64748b]">Registered into Pune logistics network manifest</div>
+                </div>
+                <div className="relative pl-4">
+                  <span className="absolute -left-[13px] top-0.5 w-3 h-3 rounded-full bg-[#10b981] border-2 border-white"></span>
+                  <div className="font-semibold text-[#0f172a]">Consolidated at Hub</div>
+                  <div className="text-[11px] text-[#64748b]">Assigned to Hub 0{selectedPackage.assigned_hub_id || 1} ({selectedPackage.dest_area} zone)</div>
+                </div>
+                <div className="relative pl-4">
+                  <span className={`absolute -left-[13px] top-0.5 w-3 h-3 rounded-full border-2 border-white ${selectedPackage.status === 'DELIVERED' || selectedPackage.status === 'IN_TRANSIT' ? 'bg-[#2563eb]' : 'bg-[#cbd5e1]'}`}></span>
+                  <div className="font-semibold text-[#0f172a]">Dispatched on Electric Cargo Van</div>
+                  <div className="text-[11px] text-[#64748b]">Assigned vehicle V-0{selectedPackage.assigned_vehicle_id || 4} multi-drop route</div>
+                </div>
+                <div className="relative pl-4">
+                  <span className={`absolute -left-[13px] top-0.5 w-3 h-3 rounded-full border-2 border-white ${selectedPackage.status === 'DELIVERED' ? 'bg-[#10b981]' : 'bg-[#cbd5e1]'}`}></span>
+                  <div className="font-semibold text-[#0f172a]">Final Delivery Verification</div>
+                  <div className="text-[11px] text-[#64748b]">Estimated handoff to {selectedPackage.recipient_name}</div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center justify-between pt-2">
+
+            {/* Consignment Attributes */}
+            <div className="pt-3 border-t border-[#f1f5f9] space-y-2">
+              <div className="text-[10px] font-semibold text-[#94a3b8] uppercase tracking-wider mb-1">
+                Shipment Attributes
+              </div>
+              <div className="flex justify-between text-[#64748b]">
+                <span>Recipient:</span>
+                <span className="font-medium text-[#0f172a]">{selectedPackage.recipient_name}</span>
+              </div>
+              <div className="flex justify-between text-[#64748b]">
+                <span>Destination Area:</span>
+                <span className="font-medium text-[#0f172a]">{selectedPackage.dest_area}</span>
+              </div>
+              <div className="flex justify-between text-[#64748b]">
+                <span>Full Address:</span>
+                <span className="font-medium text-[#0f172a] text-right truncate max-w-[200px]">{selectedPackage.dest_address}</span>
+              </div>
+              <div className="flex justify-between text-[#64748b]">
+                <span>Weight / Size:</span>
+                <span className="font-mono text-[#0f172a]">{selectedPackage.weight_kg} kg ({selectedPackage.size_category})</span>
+              </div>
+              <div className="flex justify-between text-[#64748b]">
+                <span>Corridor Priority:</span>
+                <span className="font-semibold text-[#0f172a]">{selectedPackage.priority}</span>
+              </div>
+            </div>
+
+            {/* Action button */}
+            <div className="pt-4">
               <button
-                onClick={handleBatchSample}
-                className="px-3 py-1.5 rounded-lg bg-[#e8f0fe] border border-[#d2e3fc] text-[#1a73e8] text-xs font-semibold hover:bg-[#d2e3fc]"
+                onClick={() => setSelectedPackage(null)}
+                className="w-full uf-btn-secondary text-xs"
               >
-                Ingest Sample Consignment
-              </button>
-              <button
-                onClick={() => setShowBatchModal(false)}
-                className="px-3.5 py-1.5 rounded-lg border border-[#dadce0] text-[#5f6368] text-xs hover:bg-[#f1f3f4]"
-              >
-                Close
+                Close Drawer
               </button>
             </div>
+
           </div>
         </div>
       )}

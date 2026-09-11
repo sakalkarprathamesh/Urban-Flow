@@ -2,94 +2,185 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #f8fafd;
-  --foreground: #202124;
-  --google-blue: #1a73e8;
-  --google-blue-hover: #1557b0;
-  --google-green: #34a853;
-  --google-yellow: #fbbc04;
-  --google-red: #ea4335;
-  --card-bg: #ffffff;
-  --border-color: #e2e8f0;
-  --muted-text: #5f6368;
+  /* Urban Flow Unique Design Tokens */
+  --uf-bg: #f8f9fa;
+  --uf-surface: #ffffff;
+  --uf-primary: #1e3a8a;
+  --uf-primary-light: #eff6ff;
+  --uf-accent: #2563eb;
+  --uf-accent-hover: #1d4ed8;
+  
+  --uf-text-primary: #0f172a;
+  --uf-text-secondary: #475569;
+  --uf-text-muted: #64748b;
+  --uf-text-subtle: #94a3b8;
+  
+  --uf-border: #e2e8f0;
+  --uf-border-subtle: #f1f5f9;
+  
+  /* Meaning-Driven Functional Accents */
+  --uf-success: #10b981;
+  --uf-success-bg: #ecfdf5;
+  --uf-success-border: #a7f3d0;
+  
+  --uf-warning: #f59e0b;
+  --uf-warning-bg: #fffbeb;
+  --uf-warning-border: #fde68a;
+  
+  --uf-critical: #ef4444;
+  --uf-critical-bg: #fef2f2;
+  --uf-critical-border: #fecaca;
+  
+  --uf-info: #0284c7;
+  --uf-info-bg: #f0f9ff;
+  --uf-info-border: #bae6fd;
 }
 
 body {
-  background-color: #f8fafd;
-  color: #202124;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--uf-bg);
+  color: var(--uf-text-primary);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom clean Google-style scrollbar */
+/* Restrained, Minimal Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f3f4;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #dadce0;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #bdc1c6;
+  background: #94a3b8;
 }
 
-/* Leaflet Google Maps-inspired light style */
+/* Card & Surface Utilities */
+.uf-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+}
+
+.uf-card-interactive {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  transition: all 0.15s ease-in-out;
+}
+
+.uf-card-interactive:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px 0 rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
+}
+
+.uf-card-selected {
+  background: #ffffff;
+  border: 1.5px solid #2563eb;
+  border-radius: 12px;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Button Utilities */
+.uf-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #1e3a8a;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid transparent;
+}
+.uf-btn-primary:hover {
+  background-color: #1e40af;
+}
+
+.uf-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease-in-out;
+}
+.uf-btn-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #cbd5e1;
+}
+
+/* Status Badges */
+.uf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.uf-badge-success {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.uf-badge-warning {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.uf-badge-critical {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.uf-badge-info {
+  background-color: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.uf-badge-neutral {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+/* Leaflet Container Styling */
 .leaflet-container {
-  background: #e5e3df !important;
+  background: #f1f5f9 !important;
   font-family: inherit;
 }
-.leaflet-popup-content-wrapper {
-  background: #ffffff !important;
-  color: #202124 !important;
-  border: 1px solid #dadce0 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 16px rgba(60, 64, 67, 0.15) !important;
-  padding: 2px !important;
-}
-.leaflet-popup-tip {
-  background: #ffffff !important;
+
+/* Custom Marker Pulsing for Live Traffic Hazards */
+@keyframes uf-pulse-amber {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
 }
 
-/* Clean Google-style card utilities */
-.google-card {
-  background: #ffffff;
-  border: 1px solid #e8eaed;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.05), 0 1px 3px 1px rgba(60, 64, 67, 0.03);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.google-card:hover {
-  border-color: #d2d6dc;
-  box-shadow: 0 2px 6px 0 rgba(60, 64, 67, 0.08), 0 2px 8px 2px rgba(60, 64, 67, 0.04);
-}
-
-.google-card-active {
-  background: #ffffff;
-  border: 1px solid #1a73e8;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px 0 rgba(26, 115, 232, 0.15), 0 2px 8px 1px rgba(26, 115, 232, 0.08);
-}
-
-/* Subtle status pulses */
-@keyframes pulse-blue {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(26, 115, 232, 0); }
-}
-
-@keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.5); }
-  50% { box-shadow: 0 0 0 8px rgba(234, 67, 53, 0); }
-}
-
-.marker-pulse-blue {
-  animation: pulse-blue 2s infinite;
-}
-
-.marker-pulse-red {
-  animation: pulse-red 1.5s infinite;
+.marker-pulse-amber {
+  animation: uf-pulse-amber 2s infinite;
 }
