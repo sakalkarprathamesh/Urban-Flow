@@ -15,12 +15,18 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Layers
+  Layers,
+  Users,
+  ShieldCheck,
+  User,
+  Store
 } from "lucide-react";
 
 interface SidebarProps {
   currentTab: string;
   onSelectTab: (tab: string) => void;
+  currentRole: string;
+  onSelectRole: (role: string) => void;
   onOpenAi: () => void;
   onStartDemoFlow: () => void;
   isCollapsed: boolean;
@@ -30,6 +36,8 @@ interface SidebarProps {
 export default function Sidebar({
   currentTab,
   onSelectTab,
+  currentRole,
+  onSelectRole,
   onOpenAi,
   onStartDemoFlow,
   isCollapsed,
@@ -50,6 +58,7 @@ export default function Sidebar({
 
   const secondaryNavItems = [
     { id: "planning", label: "Network Planning", icon: Compass },
+    { id: "users", label: "Accounts & Directory", icon: Users },
   ];
 
   return (
@@ -59,7 +68,7 @@ export default function Sidebar({
       }`}
     >
       {/* Top Brand Header */}
-      <div>
+      <div className="overflow-y-auto">
         <div className="h-16 flex items-center justify-between px-4 border-b border-[#f1f5f9]">
           <div
             onClick={() => onSelectTab("overview")}
@@ -124,11 +133,11 @@ export default function Sidebar({
             );
           })}
 
-          {/* Secondary Planning Item */}
+          {/* Secondary Planning & Accounts Item */}
           <div className="pt-3 mt-3 border-t border-[#f1f5f9]">
             {!isCollapsed && (
               <div className="text-[10px] font-semibold text-[#94a3b8] px-3 py-1 uppercase tracking-wider">
-                Planning
+                Planning & Accounts
               </div>
             )}
             {secondaryNavItems.map((item) => {
@@ -154,34 +163,73 @@ export default function Sidebar({
         </nav>
       </div>
 
-      {/* Bottom Faculty Demo Launcher & Network Status */}
-      <div className="p-3 border-t border-[#f1f5f9] bg-[#f8f9fa]">
+      {/* Bottom: Active Perspective Switcher & Account Badge */}
+      <div className="p-3 border-t border-[#f1f5f9] bg-[#f8f9fa] space-y-2.5">
         {!isCollapsed ? (
-          <div className="space-y-2">
+          <>
+            {/* Faculty Presentation Demo Launcher */}
             <button
               onClick={onStartDemoFlow}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white border border-[#e2e8f0] text-xs font-semibold text-[#0f172a] hover:bg-[#f1f5f9] transition-all shadow-2xs"
+              className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#e2e8f0] text-xs font-semibold text-[#0f172a] hover:bg-[#f1f5f9] transition-all shadow-2xs"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#f59e0b]" />
               <span>Faculty Presentation Demo</span>
             </button>
 
-            <div className="flex items-center justify-between px-2 pt-1 text-[11px] text-[#64748b]">
+            {/* Stakeholder Account Switcher */}
+            <div className="space-y-1.5 pt-1">
+              <div className="flex items-center justify-between text-[10px] font-semibold text-[#94a3b8] uppercase tracking-wider px-1">
+                <span>Active Account Persona</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1 bg-white p-1 rounded-lg border border-[#e2e8f0]">
+                {[
+                  { id: "admin", label: "Admin", sub: "admin@urbanflow.in" },
+                  { id: "driver", label: "Agent #04", sub: "driver.ramesh@urbanflow.in" },
+                  { id: "business", label: "Merchant", sub: "merchant.fresh@urbanflow.in" },
+                  { id: "customer", label: "Consumer", sub: "aditi.joshi@gmail.com" },
+                ].map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => onSelectRole(r.id)}
+                    className={`py-1.5 px-2 rounded-md text-xs font-medium transition-all text-left truncate ${
+                      currentRole === r.id
+                        ? "bg-[#1e3a8a] text-white font-semibold shadow-2xs"
+                        : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a]"
+                    }`}
+                    title={r.sub}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between px-1 text-[11px] text-[#64748b]">
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
-                <span>Pune Zone Active</span>
+                <span className="text-[10px]">Pune Pilot Network</span>
               </div>
               <span className="font-mono text-[10px] text-[#94a3b8]">v1.0</span>
             </div>
-          </div>
+          </>
         ) : (
-          <button
-            onClick={onStartDemoFlow}
-            className="w-full flex justify-center py-2 text-[#f59e0b] hover:text-[#b45309]"
-            title="Faculty Presentation Demo"
-          >
-            <Sparkles className="w-5 h-5" />
-          </button>
+          <div className="space-y-2 flex flex-col items-center">
+            <button
+              onClick={onStartDemoFlow}
+              className="p-2 rounded-lg text-[#f59e0b] hover:bg-white"
+              title="Faculty Presentation Demo"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onSelectRole(currentRole === "admin" ? "driver" : "admin")}
+              className="p-2 rounded-lg text-[#1e3a8a] hover:bg-white"
+              title={`Switch Persona (Current: ${currentRole})`}
+            >
+              <User className="w-4 h-4" />
+            </button>
+          </div>
         )}
       </div>
     </aside>

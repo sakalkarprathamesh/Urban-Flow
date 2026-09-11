@@ -12,7 +12,8 @@ from .routers import (
     simulation,
     planning,
     ai,
-    driver
+    driver,
+    users
 )
 
 @asynccontextmanager
@@ -48,6 +49,7 @@ app.include_router(simulation.router)
 app.include_router(planning.router)
 app.include_router(ai.router)
 app.include_router(driver.router)
+app.include_router(users.router)
 
 @app.get("/")
 def get_root():

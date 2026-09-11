@@ -3,7 +3,7 @@ import json
 from sqlalchemy.orm import Session
 from .models import (
     MicroHub, Vehicle, Business, Package, DeliveryCluster, 
-    Route, RouteStop, ReversePickup, TrafficEvent
+    Route, RouteStop, ReversePickup, TrafficEvent, User
 )
 from .pune_geo import PUNE_LANDMARKS, interpolate_points
 
@@ -295,5 +295,22 @@ def seed_database(db: Session):
             status="PENDING"
         )
         db.add(rp)
+
+    # 8. Seed System User & Delivery Agent Accounts
+    users_data = [
+        {"name": "Pune City Logistics Administrator", "email": "admin@urbanflow.in", "role": "admin"},
+        {"name": "Vikramaditya Rao (Control Officer)", "email": "operations@urbanflow.in", "role": "admin"},
+        {"name": "Ramesh Shinde (Fleet Agent #04)", "email": "driver.ramesh@urbanflow.in", "role": "driver"},
+        {"name": "Suresh Pawar (EV Courier #12)", "email": "driver.suresh@urbanflow.in", "role": "driver"},
+        {"name": "Amit Kadam (Two-Wheeler Express #21)", "email": "driver.amit@urbanflow.in", "role": "driver"},
+        {"name": "Pune Daily Fresh Market", "email": "merchant.fresh@urbanflow.in", "role": "business"},
+        {"name": "Deccan MedLife Pharmaceuticals", "email": "merchant.medlife@urbanflow.in", "role": "business"},
+        {"name": "Aditi Joshi", "email": "aditi.joshi@gmail.com", "role": "customer"},
+        {"name": "Rahul Deshmukh", "email": "rahul.deshmukh@gmail.com", "role": "customer"}
+    ]
+    for u in users_data:
+        existing = db.query(User).filter(User.email == u["email"]).first()
+        if not existing:
+            db.add(User(name=u["name"], email=u["email"], role=u["role"]))
 
     db.commit()

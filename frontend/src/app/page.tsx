@@ -16,12 +16,16 @@ import ReverseLogisticsView from "@/components/views/ReverseLogisticsView";
 import SimulationView from "@/components/views/SimulationView";
 import AnalyticsView from "@/components/views/AnalyticsView";
 import PlanningView from "@/components/views/PlanningView";
+import UsersView from "@/components/views/UsersView";
+import DriverPortalView from "@/components/views/DriverPortalView";
+import CustomerPortalView from "@/components/views/CustomerPortalView";
 
 import AiAssistantDrawer from "@/components/AiAssistantDrawer";
 import DemoFlowModal from "@/components/DemoFlowModal";
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState<string>("overview");
+  const [currentRole, setCurrentRole] = useState<string>("admin");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -108,13 +112,34 @@ export default function Home() {
     }
   };
 
+  // Stakeholder Account Switcher
+  const handleSelectRole = (role: string) => {
+    setCurrentRole(role);
+    if (role === "driver") {
+      setCurrentTab("driver");
+    } else if (role === "customer") {
+      setCurrentTab("customer");
+    } else if (role === "business") {
+      setCurrentTab("deliveries");
+    } else {
+      setCurrentTab("overview");
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-[#f8f9fa] text-[#0f172a] font-sans antialiased">
       
-      {/* Slim Desktop Navigation Sidebar (Section 7) */}
+      {/* Slim Desktop Navigation Sidebar */}
       <Sidebar
         currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+        onSelectTab={(tab) => {
+          if (tab !== "driver" && tab !== "customer") {
+            setCurrentRole("admin");
+          }
+          setCurrentTab(tab);
+        }}
+        currentRole={currentRole}
+        onSelectRole={handleSelectRole}
         onOpenAi={() => setIsAiOpen(true)}
         onStartDemoFlow={() => setIsDemoOpen(true)}
         isCollapsed={isSidebarCollapsed}
@@ -130,6 +155,8 @@ export default function Home() {
         {/* Top Header */}
         <Header
           currentTab={currentTab}
+          currentRole={currentRole}
+          onSelectRole={handleSelectRole}
           onOpenAi={() => setIsAiOpen(true)}
           onStartDemoFlow={() => setIsDemoOpen(true)}
           isSidebarCollapsed={isSidebarCollapsed}
@@ -137,75 +164,95 @@ export default function Home() {
 
         {/* View Router */}
         <main className="flex-1 w-full pb-12">
-          {currentTab === "overview" && (
-            <DashboardView
-              stats={stats}
-              mapData={mapData}
-              onSimulateReroute={handleSimulateReroute}
-              onClearClosure={handleClearClosure}
-              onOptimizeNetwork={handleOptimizeNetwork}
-              onSelectHub={(h) => {}}
-              onSelectVehicle={(v) => {}}
-              isRerouted={isRerouted}
-              rerouteDetails={rerouteDetails}
-            />
+          {/* Delivery Agent Web Portal */}
+          {(currentTab === "driver" || currentRole === "driver") && (
+            <DriverPortalView onBackToAdmin={() => handleSelectRole("admin")} />
           )}
 
-          {currentTab === "map" && (
-            <LiveMapView
-              mapData={mapData}
-              onSimulateReroute={handleSimulateReroute}
-              onClearClosure={handleClearClosure}
-              isRerouted={isRerouted}
-            />
+          {/* Customer Logistics Portal */}
+          {(currentTab === "customer" || currentRole === "customer") && (
+            <CustomerPortalView onBackToAdmin={() => handleSelectRole("admin")} />
           )}
 
-          {currentTab === "deliveries" && (
-            <DeliveriesView
-              onTriggerOptimize={handleOptimizeNetwork}
-              clusters={mapData?.clusters || []}
-            />
+          {/* Accounts & Personnel Directory */}
+          {currentTab === "users" && currentRole !== "driver" && currentRole !== "customer" && (
+            <UsersView onSwitchRole={handleSelectRole} />
           )}
 
-          {currentTab === "hubs" && (
-            <HubsView
-              hubs={mapData?.hubs || []}
-              onNavigateTab={setCurrentTab}
-            />
-          )}
+          {/* Standard Platform Views */}
+          {currentRole !== "driver" && currentRole !== "customer" && currentTab !== "users" && (
+            <>
+              {currentTab === "overview" && (
+                <DashboardView
+                  stats={stats}
+                  mapData={mapData}
+                  onSimulateReroute={handleSimulateReroute}
+                  onClearClosure={handleClearClosure}
+                  onOptimizeNetwork={handleOptimizeNetwork}
+                  onSelectHub={(h) => {}}
+                  onSelectVehicle={(v) => {}}
+                  isRerouted={isRerouted}
+                  rerouteDetails={rerouteDetails}
+                />
+              )}
 
-          {currentTab === "vehicles" && (
-            <VehiclesView vehicles={mapData?.vehicles || []} />
-          )}
+              {currentTab === "map" && (
+                <LiveMapView
+                  mapData={mapData}
+                  onSimulateReroute={handleSimulateReroute}
+                  onClearClosure={handleClearClosure}
+                  isRerouted={isRerouted}
+                />
+              )}
 
-          {currentTab === "routes" && (
-            <RoutesView
-              routes={mapData?.routes || []}
-              onNavigateToMap={() => setCurrentTab("map")}
-            />
-          )}
+              {currentTab === "deliveries" && (
+                <DeliveriesView
+                  onTriggerOptimize={handleOptimizeNetwork}
+                  clusters={mapData?.clusters || []}
+                />
+              )}
 
-          {currentTab === "reverse" && (
-            <ReverseLogisticsView
-              onTriggerReverseMatch={handleReverseMatch}
-            />
-          )}
+              {currentTab === "hubs" && (
+                <HubsView
+                  hubs={mapData?.hubs || []}
+                  onNavigateTab={setCurrentTab}
+                />
+              )}
 
-          {currentTab === "simulation" && (
-            <SimulationView />
-          )}
+              {currentTab === "vehicles" && (
+                <VehiclesView vehicles={mapData?.vehicles || []} />
+              )}
 
-          {currentTab === "analytics" && (
-            <AnalyticsView />
-          )}
+              {currentTab === "routes" && (
+                <RoutesView
+                  routes={mapData?.routes || []}
+                  onNavigateToMap={() => setCurrentTab("map")}
+                />
+              )}
 
-          {currentTab === "planning" && (
-            <PlanningView />
+              {currentTab === "reverse" && (
+                <ReverseLogisticsView
+                  onTriggerReverseMatch={handleReverseMatch}
+                />
+              )}
+
+              {currentTab === "simulation" && (
+                <SimulationView />
+              )}
+
+              {currentTab === "analytics" && (
+                <AnalyticsView />
+              )}
+
+              {currentTab === "planning" && (
+                <PlanningView />
+              )}
+            </>
           )}
         </main>
       </div>
 
-      {/* Split-Screen Logistics Intelligence Drawer (Section 19) */}
+      {/* Split-Screen Logistics Intelligence Drawer */}
       <AiAssistantDrawer
         isOpen={isAiOpen}
         onClose={() => setIsAiOpen(false)}
@@ -216,6 +263,7 @@ export default function Home() {
         isOpen={isDemoOpen}
         onClose={() => setIsDemoOpen(false)}
         onNavigateTab={(tab) => {
+          setCurrentRole("admin");
           setCurrentTab(tab);
         }}
         onTriggerOptimize={handleOptimizeNetwork}

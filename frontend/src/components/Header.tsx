@@ -6,12 +6,18 @@ import {
   Sparkles, 
   Activity, 
   MapPin, 
-  Clock,
-  ExternalLink
+  Clock, 
+  User, 
+  ShieldCheck, 
+  Truck, 
+  Store, 
+  ChevronDown
 } from "lucide-react";
 
 interface HeaderProps {
   currentTab: string;
+  currentRole: string;
+  onSelectRole: (role: string) => void;
   onOpenAi: () => void;
   onStartDemoFlow: () => void;
   isSidebarCollapsed: boolean;
@@ -19,6 +25,8 @@ interface HeaderProps {
 
 export default function Header({
   currentTab,
+  currentRole,
+  onSelectRole,
   onOpenAi,
   onStartDemoFlow,
   isSidebarCollapsed,
@@ -76,6 +84,18 @@ export default function Header({
       title: "Network Planning", 
       desc: "Simulate candidate micro-hub additions and quantify city-scale impact" 
     },
+    users: {
+      title: "System Accounts & Directory",
+      desc: "Registered city administrators, delivery fleet agents, merchants, and consumer profiles"
+    },
+    driver: {
+      title: "Delivery Agent Web Portal",
+      desc: "Sequential delivery stop checklist and parcel confirmation console"
+    },
+    customer: {
+      title: "Customer Logistics Web Portal",
+      desc: "Live consignment milestone tracking and delivery windows"
+    }
   };
 
   const currentInfo = titlesMap[currentTab] || { 
@@ -83,14 +103,34 @@ export default function Header({
     desc: "Intelligent Urban Logistics Coordination Platform" 
   };
 
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case "driver":
+        return "Delivery Agent (Ramesh Shinde #04)";
+      case "business":
+        return "Merchant Partner (Pune Daily Fresh)";
+      case "customer":
+        return "Consumer Account (Aditi Joshi)";
+      default:
+        return "City Administrator";
+    }
+  };
+
   return (
     <header className="sticky top-0 z-30 h-16 bg-white border-b border-[#e2e8f0] px-6 flex items-center justify-between">
       
       {/* Active View Title & Context */}
       <div>
-        <h1 className="text-base font-semibold text-[#0f172a] tracking-tight">
-          {currentInfo.title}
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-base font-semibold text-[#0f172a] tracking-tight">
+            {currentInfo.title}
+          </h1>
+          {currentRole !== "admin" && (
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#eff6ff] text-[#1e40af] border border-[#bfdbfe]">
+              {currentRole === "driver" ? "Agent View" : currentRole === "customer" ? "Customer View" : "Merchant View"}
+            </span>
+          )}
+        </div>
         <p className="text-xs text-[#64748b] hidden sm:block">
           {currentInfo.desc}
         </p>
@@ -99,11 +139,20 @@ export default function Header({
       {/* Right Actions & Telemetry Badges */}
       <div className="flex items-center gap-3">
         
+        {/* Active Perspective Indicator & Fast Switcher */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#f8f9fa] border border-[#e2e8f0] text-xs text-[#0f172a]">
+          {currentRole === "admin" && <ShieldCheck className="w-3.5 h-3.5 text-[#ef4444]" />}
+          {currentRole === "driver" && <Truck className="w-3.5 h-3.5 text-[#2563eb]" />}
+          {currentRole === "business" && <Store className="w-3.5 h-3.5 text-[#f59e0b]" />}
+          {currentRole === "customer" && <User className="w-3.5 h-3.5 text-[#10b981]" />}
+          <span className="font-medium">{getRoleLabel(currentRole)}</span>
+        </div>
+
         {/* Network Status Badge */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#f8f9fa] border border-[#e2e8f0] text-xs text-[#0f172a]">
           <span className="w-2 h-2 rounded-full bg-[#10b981]"></span>
           <span className="font-medium">Pune Network</span>
-          <span className="text-[#64748b]">● Operational</span>
+          <span className="text-[#64748b]">● Active</span>
           <span className="text-[#94a3b8] font-mono pl-1">{timeStr || "19:50"} IST</span>
         </div>
 
